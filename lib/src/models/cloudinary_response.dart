@@ -20,7 +20,9 @@ class CloudinaryResponse {
   Map<String, dynamic> deleted;
   bool partial;
 
-  bool get isSuccessful => ((statusCode ??= 200) >= 200 && statusCode < 300) && isResultOk;
+  bool get isSuccessful =>
+      ((statusCode ??= 200) >= 200 && statusCode < 300) && isResultOk;
+
   bool get isResultOk => (error?.isEmpty ?? true) && (result ??= 'ok') == 'ok';
 
   CloudinaryResponse.fromJsonMap(Map<String, dynamic> map)
@@ -41,30 +43,29 @@ class CloudinaryResponse {
         originalFilename = map['original_filename'],
         result = map['result'] ?? 'ok',
         deleted = map['deleted'],
-        partial = map['partial']
-  ;
+        partial = map['partial'];
 
   CloudinaryResponse.fromError(this.error);
 
   Map<String, dynamic> toJson() => {
-    'status_code': statusCode,
-    'public_id': publicId,
-    'version': version,
-    'width': width,
-    'height': height,
-    'format': format,
-    'created_at': createdAt,
-    'resource_type': resourceType,
-    'tags': tags,
-    'bytes': bytes,
-    'type': type,
-    'etag': etag,
-    'url': url,
-    'secure_url': secureUrl,
-    'signature': signature,
-    'original_filename': originalFilename,
-    'result': result,
-    'deleted': deleted,
-    'partial': partial,
-  };
+        'status_code': statusCode,
+        'public_id': publicId,
+        'version': version,
+        'width': width,
+        'height': height,
+        'format': format,
+        'created_at': createdAt,
+        'resource_type': resourceType,
+        'tags': tags,
+        'bytes': bytes,
+        'type': type,
+        'etag': etag,
+        'url': url,
+        'secure_url': secureUrl,
+        'signature': signature,
+        'original_filename': originalFilename,
+        'result': result,
+        'deleted': deleted,
+        'partial': partial,
+      };
 }

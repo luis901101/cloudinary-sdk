@@ -23,8 +23,7 @@ class CloudinaryImage {
     _pathEnd = resource[1];
     _publicId = _originalUrl.split('/upload/')[1];
     int lastDotIndex = _publicId.lastIndexOf('.');
-    if(lastDotIndex != -1)
-      _publicId = _publicId.substring(0, lastDotIndex);
+    if (lastDotIndex != -1) _publicId = _publicId.substring(0, lastDotIndex);
   }
 
   factory CloudinaryImage.fromPublicId(String cloudName, String publicId) {

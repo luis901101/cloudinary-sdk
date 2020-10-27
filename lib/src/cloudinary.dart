@@ -74,15 +74,14 @@ class Cloudinary {
   ///
   /// Response:
   /// Check response.isResultOk to know if the file was successfully deleted.
-  Future<CloudinaryResponse> deleteFile({
-    String publicId,
-    String url,
-    CloudinaryImage cloudinaryImage,
-    CloudinaryResourceType resourceType,
-    bool invalidate,
-    Map<String, dynamic> optParams}) {
-
-    if(publicId == null)
+  Future<CloudinaryResponse> deleteFile(
+      {String publicId,
+      String url,
+      CloudinaryImage cloudinaryImage,
+      CloudinaryResourceType resourceType,
+      bool invalidate,
+      Map<String, dynamic> optParams}) {
+    if (publicId == null)
       publicId = (cloudinaryImage ?? CloudinaryImage(url)).publicId;
     return _client.destroy(publicId,
         resourceType: resourceType,
@@ -112,37 +111,34 @@ class Cloudinary {
   ///
   /// Response:
   /// Check 'deleted' map inside CloudinaryResponse to know which files were deleted
-  Future<CloudinaryResponse> deleteFiles({
-    List<String> publicIds,
-    List<String> urls,
-    List<CloudinaryImage> cloudinaryImages,
-    String prefix,
-    bool all,
-    CloudinaryResourceType resourceType,
-    CloudinaryDeliveryType deliveryType,
-    bool invalidate,
-    Map<String, dynamic> optParams}) {
-
-    if(all == null && prefix == null){
-      if(publicIds == null){
+  Future<CloudinaryResponse> deleteFiles(
+      {List<String> publicIds,
+      List<String> urls,
+      List<CloudinaryImage> cloudinaryImages,
+      String prefix,
+      bool all,
+      CloudinaryResourceType resourceType,
+      CloudinaryDeliveryType deliveryType,
+      bool invalidate,
+      Map<String, dynamic> optParams}) {
+    if (all == null && prefix == null) {
+      if (publicIds == null) {
         publicIds = [];
-        if(urls != null)
+        if (urls != null)
           urls.forEach((url) => publicIds.add(CloudinaryImage(url).publicId));
-        else
-        if(cloudinaryImages != null)
-          cloudinaryImages.forEach((cloudinaryImage) => publicIds.add(cloudinaryImage.publicId));
+        else if (cloudinaryImages != null)
+          cloudinaryImages.forEach(
+              (cloudinaryImage) => publicIds.add(cloudinaryImage.publicId));
       }
     }
 
     return _client.deleteResources(
-      publicIds: publicIds,
-      prefix: prefix,
-      all: all,
-      resourceType: resourceType,
-      deliveryType: deliveryType,
-      invalidate: invalidate,
-      optParams: optParams
-    );
+        publicIds: publicIds,
+        prefix: prefix,
+        all: all,
+        resourceType: resourceType,
+        deliveryType: deliveryType,
+        invalidate: invalidate,
+        optParams: optParams);
   }
-
 }

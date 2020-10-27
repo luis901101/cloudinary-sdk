@@ -10,25 +10,12 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Cloudinary Demo',
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or simply save your changes to "hot reload" in a Flutter IDE).
-        // Notice that the counter didn't reset back to zero; the application
-        // is not restarted.
         primarySwatch: Colors.blue,
-        // This makes the visual density adapt to the platform that you run
-        // the app on. For desktop platforms, the controls will be smaller and
-        // closer together (more dense) than on mobile platforms.
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       home: MyHomePage(title: 'Cloudinary Home Page'),
@@ -38,15 +25,6 @@ class MyApp extends StatelessWidget {
 
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key, this.title}) : super(key: key);
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
 
   final String title;
 
@@ -72,11 +50,8 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
-    cloudinary = Cloudinary(
-      cloudinaryApiKey,
-      cloudinaryApiSecret,
-      cloudinaryCloudName
-    );
+    cloudinary =
+        Cloudinary(cloudinaryApiKey, cloudinaryApiSecret, cloudinaryCloudName);
   }
 
   @override
@@ -91,8 +66,12 @@ class _MyHomePageState extends State<MyHomePage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                Text('Fotos from file',),
-                SizedBox(height: 16,),
+                Text(
+                  'Fotos from file',
+                ),
+                SizedBox(
+                  height: 16,
+                ),
                 Wrap(
                   alignment: WrapAlignment.center,
                   crossAxisAlignment: WrapCrossAlignment.center,
@@ -100,28 +79,42 @@ class _MyHomePageState extends State<MyHomePage> {
                   spacing: 8,
                   runSpacing: 8,
                   children: List.generate(pathPhotos.length, (index) {
-                    return Image.file(File(pathPhotos[index]), width: 100, height: 100,);
+                    return Image.file(
+                      File(pathPhotos[index]),
+                      width: 100,
+                      height: 100,
+                    );
                   }),
                 ),
                 ElevatedButton(
-                  onPressed: loading || pathPhotos.isEmpty ?
-                  null : (){
-                    pathPhotos = [];
-                    setState(() {});
-                  },
+                  onPressed: loading || pathPhotos.isEmpty
+                      ? null
+                      : () {
+                          pathPhotos = [];
+                          setState(() {});
+                        },
                   style: ButtonStyle(
-                    backgroundColor: MaterialStateProperty.resolveWith<Color>((Set<MaterialState> states) {
-                      return states.contains(MaterialState.disabled) ?
-                      null : Colors.deepPurple;
+                    backgroundColor: MaterialStateProperty.resolveWith<Color>(
+                        (Set<MaterialState> states) {
+                      return states.contains(MaterialState.disabled)
+                          ? null
+                          : Colors.deepPurple;
                     }),
                   ),
-                  child: Text('Clear list', textAlign: TextAlign.center,),
+                  child: Text(
+                    'Clear list',
+                    textAlign: TextAlign.center,
+                  ),
                 ),
-                Divider(height: 48,),
+                Divider(
+                  height: 48,
+                ),
                 Text(
                   'Fotos from cloudinary',
                 ),
-                SizedBox(height: 16,),
+                SizedBox(
+                  height: 16,
+                ),
                 Wrap(
                   alignment: WrapAlignment.center,
                   crossAxisAlignment: WrapCrossAlignment.center,
@@ -130,52 +123,82 @@ class _MyHomePageState extends State<MyHomePage> {
                   runSpacing: 8,
                   children: List.generate(urlPhotos.length, (index) {
                     final cloudinaryImage = CloudinaryImage(urlPhotos[index]);
-                    String transformedUrl = cloudinaryImage.transform().width(256).thumb().generate();
-                    return Image.network(transformedUrl, width: 100, height: 100,);
+                    String transformedUrl = cloudinaryImage
+                        .transform()
+                        .width(256)
+                        .thumb()
+                        .generate();
+                    return Image.network(
+                      transformedUrl,
+                      width: 100,
+                      height: 100,
+                    );
                   }),
                 ),
                 ElevatedButton(
-                  onPressed: loading || urlPhotos.isEmpty ?
-                  null : (){
-                    urlPhotos = [];
-                    setState(() {});
-                  },
+                  onPressed: loading || urlPhotos.isEmpty
+                      ? null
+                      : () {
+                          urlPhotos = [];
+                          setState(() {});
+                        },
                   style: ButtonStyle(
-                    backgroundColor: MaterialStateProperty.resolveWith<Color>((Set<MaterialState> states) {
-                      return states.contains(MaterialState.disabled) ?
-                      null : Colors.purple;
+                    backgroundColor: MaterialStateProperty.resolveWith<Color>(
+                        (Set<MaterialState> states) {
+                      return states.contains(MaterialState.disabled)
+                          ? null
+                          : Colors.purple;
                     }),
                   ),
-                  child: Text('Clear list', textAlign: TextAlign.center,),
+                  child: Text(
+                    'Clear list',
+                    textAlign: TextAlign.center,
+                  ),
                 ),
-                SizedBox(height: 32,),
+                SizedBox(
+                  height: 32,
+                ),
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 16),
                   child: Row(
                     children: [
                       Expanded(
                         child: ElevatedButton(
-                          onPressed: loading || (pathPhotos.isEmpty && urlPhotos.isEmpty) ?
-                          null : (){
-                            pathPhotos = [];
-                            urlPhotos = [];
-                            setState(() {});
-                          },
+                          onPressed: loading ||
+                                  (pathPhotos.isEmpty && urlPhotos.isEmpty)
+                              ? null
+                              : () {
+                                  pathPhotos = [];
+                                  urlPhotos = [];
+                                  setState(() {});
+                                },
                           style: ButtonStyle(
-                            backgroundColor: MaterialStateProperty.resolveWith<Color>((Set<MaterialState> states) {
-                              return states.contains(MaterialState.disabled) ?
-                                null : Colors.deepOrange;
+                            backgroundColor:
+                                MaterialStateProperty.resolveWith<Color>(
+                                    (Set<MaterialState> states) {
+                              return states.contains(MaterialState.disabled)
+                                  ? null
+                                  : Colors.deepOrange;
                             }),
                           ),
-                          child: Text('Clear all', textAlign: TextAlign.center,),
+                          child: Text(
+                            'Clear all',
+                            textAlign: TextAlign.center,
+                          ),
                         ),
                       ),
-                      SizedBox(width: 16,),
+                      SizedBox(
+                        width: 16,
+                      ),
                       Expanded(
                         child: ElevatedButton(
-                          onPressed: loading || pathPhotos.isEmpty ? null :
-                              () => onClick(uploadPhotos),
-                          child: Text('Upload', textAlign: TextAlign.center,),
+                          onPressed: loading || pathPhotos.isEmpty
+                              ? null
+                              : () => onClick(uploadPhotos),
+                          child: Text(
+                            'Upload',
+                            textAlign: TextAlign.center,
+                          ),
                         ),
                       ),
                     ],
@@ -187,41 +210,51 @@ class _MyHomePageState extends State<MyHomePage> {
                     children: [
                       Expanded(
                         child: ElevatedButton(
-                          onPressed: loading || pathPhotos.isEmpty ? null :
-                              () => onClick(deleteUploadedPhotos),
+                          onPressed: loading || pathPhotos.isEmpty
+                              ? null
+                              : () => onClick(deleteUploadedPhotos),
                           style: ButtonStyle(
-                            backgroundColor: MaterialStateProperty.resolveWith<Color>((Set<MaterialState> states) {
-                              return states.contains(MaterialState.disabled) ?
-                              null : Colors.red.shade600;
+                            backgroundColor:
+                                MaterialStateProperty.resolveWith<Color>(
+                                    (Set<MaterialState> states) {
+                              return states.contains(MaterialState.disabled)
+                                  ? null
+                                  : Colors.red.shade600;
                             }),
                           ),
-                          child: Text('Delete uploaded photos', textAlign: TextAlign.center,),
+                          child: Text(
+                            'Delete uploaded photos',
+                            textAlign: TextAlign.center,
+                          ),
                         ),
                       ),
                     ],
                   ),
                 ),
-                SizedBox(height: 32,),
-                Visibility(
-                  visible: loading,
-                  child: Center(
-                    child: CircularProgressIndicator(),
-                  )
+                SizedBox(
+                  height: 32,
                 ),
                 Visibility(
-                  visible: errorMessage?.isNotEmpty ?? false,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        "$errorMessage",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(fontSize: 18, color: Colors.red.shade900),
-                      ),
-                      SizedBox(height: 128,),
-                    ],
-                  )
-                ),
+                    visible: loading,
+                    child: Center(
+                      child: CircularProgressIndicator(),
+                    )),
+                Visibility(
+                    visible: errorMessage?.isNotEmpty ?? false,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          "$errorMessage",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                              fontSize: 18, color: Colors.red.shade900),
+                        ),
+                        SizedBox(
+                          height: 128,
+                        ),
+                      ],
+                    )),
               ],
             ),
           ),
@@ -238,22 +271,24 @@ class _MyHomePageState extends State<MyHomePage> {
   onNewPhoto(String filePath) {
     if (filePath?.isNotEmpty ?? false) {
       pathPhotos.add(filePath);
-      setState((){});
+      setState(() {});
     }
   }
 
   void onClick(int id) async {
     errorMessage = null;
-    try{
-      switch(id){
+    try {
+      switch (id) {
         case loadPhoto:
           AlertUtils.showImagePickerModal(
             context: context,
             onImageFromCamera: () async {
-              onNewPhoto(await handleImagePickerResponse(ImageUtils.takePhoto(cameraDevice: CameraDevice.rear)));
+              onNewPhoto(await handleImagePickerResponse(
+                  ImageUtils.takePhoto(cameraDevice: CameraDevice.rear)));
             },
             onImageFromGallery: () async {
-              onNewPhoto(await handleImagePickerResponse(ImageUtils.pickImageFromGallery()));
+              onNewPhoto(await handleImagePickerResponse(
+                  ImageUtils.pickImageFromGallery()));
             },
           );
           break;
@@ -278,27 +313,24 @@ class _MyHomePageState extends State<MyHomePage> {
           responses.forEach((response) {
 //            if(response.error?.isNotEmpty ?? false)
 //              throw Exception(response.error);
-            if(response.isSuccessful ?? false)
+            if (response.isSuccessful ?? false)
               urlPhotos.add(response.secureUrl);
-            else{
+            else {
               errorMessage = response?.error;
               return;
             }
-
           });
           break;
         case deleteUploadedPhotos:
           showLoading();
           CloudinaryResponse response = await cloudinary.deleteFiles(
-            urls: urlPhotos,
-            resourceType: CloudinaryResourceType.image
-          );
+              urls: urlPhotos, resourceType: CloudinaryResourceType.image);
 
-          if(response.isSuccessful ?? false){
-            //Check for deleted status...
+          if (response.isSuccessful ?? false) {
             urlPhotos = [];
-            Map<String, dynamic> deleted = response.deleted;
-          } else{
+            //Check for deleted status...
+//            Map<String, dynamic> deleted = response.deleted;
+          } else {
             errorMessage = response?.error;
           }
 
@@ -317,29 +349,30 @@ class _MyHomePageState extends State<MyHomePage> {
 //          }
           break;
       }
-    }catch(e){
+    } catch (e) {
       print(e);
       loading = false;
       setState(() => errorMessage = e?.toString());
-    }
-    finally{
-      if(loading) hideLoading();
+    } finally {
+      if (loading) hideLoading();
     }
   }
 
   showLoading() => setState(() => loading = true);
+
   hideLoading() => setState(() => loading = false);
 
-  Future<String> handleImagePickerResponse(Future getImageCall) async{
+  Future<String> handleImagePickerResponse(Future getImageCall) async {
     Map<String, dynamic> resource = await getImageCall;
-    if(resource?.isEmpty ?? true) return null;
-    switch(resource['status']){
+    if (resource?.isEmpty ?? true) return null;
+    switch (resource['status']) {
       case 'SUCCESS':
         Navigator.pop(context);
         return resource['data'].path;
         break;
       default:
-        ImageUtils.showPermissionExplanation(context: context, message: resource['message']);
+        ImageUtils.showPermissionExplanation(
+            context: context, message: resource['message']);
         break;
     }
     return null;

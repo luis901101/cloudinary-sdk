@@ -9,7 +9,7 @@ class CloudinaryApi {
   Dio _dio;
   Dio _deleteDio;
 
-  CloudinaryApi({String apiKey, String apiSecret}){
+  CloudinaryApi({String apiKey, String apiSecret}) {
     _dio = Dio(BaseOptions(
       baseUrl: API_BASE_URL,
     ));
@@ -19,32 +19,36 @@ class CloudinaryApi {
   }
 
   Future<Response<T>> post<T>(
-      String path, {
-        data,
-        Map<String, dynamic> queryParameters,
-        Options options,
-        CancelToken cancelToken,
-        ProgressCallback onSendProgress,
-        ProgressCallback onReceiveProgress,
-      }) =>
-    _dio.post(path, data: data,
+    String path, {
+    data,
+    Map<String, dynamic> queryParameters,
+    Options options,
+    CancelToken cancelToken,
+    ProgressCallback onSendProgress,
+    ProgressCallback onReceiveProgress,
+  }) =>
+      _dio.post(path,
+          data: data,
+          queryParameters: queryParameters,
+          options: options,
+          cancelToken: cancelToken,
+          onSendProgress: onSendProgress,
+          onReceiveProgress: onReceiveProgress);
+
+  Future<Response<T>> delete<T>(
+    String path, {
+    data,
+    Map<String, dynamic> queryParameters,
+    Options options,
+    CancelToken cancelToken,
+  }) =>
+      _deleteDio.delete(
+        path,
+        data: data,
         queryParameters: queryParameters,
         options: options,
         cancelToken: cancelToken,
-        onSendProgress: onSendProgress,
-        onReceiveProgress: onReceiveProgress);
-
-  Future<Response<T>> delete<T>(
-      String path, {
-        data,
-        Map<String, dynamic> queryParameters,
-        Options options,
-        CancelToken cancelToken,
-      }) =>
-    _deleteDio.delete(path, data: data,
-        queryParameters: queryParameters,
-        options: options,
-        cancelToken: cancelToken,);
+      );
 
   String getSignature(
       {String secret, int timeStamp, Map<String, dynamic> params}) {
