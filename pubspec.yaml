@@ -1,0 +1,13 @@
+name: cloudinary_sdk
+description: This is a dart package for Cloudinary API that allows you to upload and manage files in your cloudinary cloud.
+
+version: 1.0.0+1
+author: Luis Alberto Marquez Torres <luis901101@gmail.com>
+homepage: https://github.com/luis901101/cloudinary_sdk
+
+environment:
+  sdk: ">=2.7.0 <3.0.0"
+
+dependencies:
+  dio: ^3.0.10
+  crypto: ^2.1.5
