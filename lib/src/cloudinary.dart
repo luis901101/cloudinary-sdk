@@ -47,20 +47,6 @@ class Cloudinary {
     return responses;
   }
 
-  Future<List<String>> uploadFilesStringResp(List<String> filePaths,
-      {String folder,
-      CloudinaryResourceType resourceType,
-      Map<String, dynamic> optParams}) async {
-    List<String> responses = List();
-
-    for (var filePath in filePaths) {
-      CloudinaryResponse resp = await _client.upload(filePath,
-          folder: folder, resourceType: resourceType, optParams: optParams);
-      responses.add(resp.url);
-    }
-    return responses;
-  }
-
   /// Deletes a file of [resourceType] with [publicId]
   /// from your specified [cloudName]
   /// By using the Destroy method of cloudinary api. Check here https://cloudinary.com/documentation/image_upload_api_reference#destroy_method

@@ -18,6 +18,7 @@ class CloudinaryApi {
     ));
   }
 
+  /// To do post requests to Cloudinary API
   Future<Response<T>> post<T>(
     String path, {
     data,
@@ -35,6 +36,7 @@ class CloudinaryApi {
           onSendProgress: onSendProgress,
           onReceiveProgress: onReceiveProgress);
 
+  /// To do delete requests to Cloudinary API
   Future<Response<T>> delete<T>(
     String path, {
     data,
@@ -50,6 +52,7 @@ class CloudinaryApi {
         cancelToken: cancelToken,
       );
 
+  /// Generates a proper Cloudinary Authentication Signature according to https://cloudinary.com/documentation/upload_images#generating_authentication_signatures
   String getSignature(
       {String secret, int timeStamp, Map<String, dynamic> params}) {
     timeStamp ??= DateTime.now().millisecondsSinceEpoch;
