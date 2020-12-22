@@ -21,7 +21,7 @@ class CloudinaryImage {
     assert(resource.length == 2, 'Invalid cloudinary url');
     _pathStart = resource[0] + '/upload/';
     _pathEnd = resource[1];
-    _publicId = _originalUrl.split('/upload/')[1];
+    _publicId = Uri.decodeFull(_originalUrl.split('/upload/')[1]);
     int lastDotIndex = _publicId.lastIndexOf('.');
     if (lastDotIndex != -1) _publicId = _publicId.substring(0, lastDotIndex);
   }
