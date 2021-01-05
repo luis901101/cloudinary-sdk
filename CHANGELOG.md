@@ -1,3 +1,7 @@
+## 1.0.3+4
+### Fixed
+- Fixed bug on uploadFile function that was ignoring optParams
+
 ## 1.0.2+3
 ### Fixed
 - Fixed bug on **publicId** parsing from url on CloudinaryImage when url had encoded characters

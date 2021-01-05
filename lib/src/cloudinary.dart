@@ -32,7 +32,10 @@ class Cloudinary {
           CloudinaryResourceType resourceType,
           Map<String, dynamic> optParams}) =>
       _client.upload(filePath,
-          fileName: fileName, folder: folder, resourceType: resourceType, optParams: optParams);
+          fileName: fileName,
+          folder: folder,
+          resourceType: resourceType,
+          optParams: optParams);
 
   /// This function uploads multiples files by calling uploadFile repeatedly
   Future<List<CloudinaryResponse>> uploadFiles(List<String> filePaths,
