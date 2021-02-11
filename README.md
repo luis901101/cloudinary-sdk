@@ -28,30 +28,74 @@ This three params can be obtained directly from your Cloudinary account Dashboar
 
 ```dart
   final response = await cloudinary.uploadFile(
-    filePath,
+    filePath: filePath,
     resourceType: CloudinaryResourceType.image,
     folder: cloudinaryCustomFolder,
   );
+
+  //OR
+
+  final response = await cloudinary.uploadFile(
+    fileBytes: fileBytes,
+    resourceType: CloudinaryResourceType.image,
+    folder: cloudinaryCustomFolder,
+  );
+
+  //OR
+
+  final response = await cloudinary.uploadResource(
+    CloudinaryUploadResource(
+      filePath: filePath,
+      fileBytes: fileBytes,
+      resourceType: CloudinaryResourceType.image,
+      folder: cloudinaryCustomFolder,
+      fileName: 'asd@asd.com'
+    )
+  );
+
   if(response.isSuccessful ?? false)
     urlPhotos.add(response.secureUrl);
 ```
-You can also pass an `optParams` map to do a more elaborated upload according to https://cloudinary.com/documentation/image_upload_api_reference
+You can upload a file from path or byte array representation, you can also pass an `optParams` map to do a more elaborated upload according to https://cloudinary.com/documentation/image_upload_api_reference
 The cloudinary.uploadFile(...) function is fully documented, you can check the description to know what other options you have.
 
 ### Do a multiple file upload
 
 ```dart
-List<CloudinaryResponse> responses = await cloudinary.uploadFiles(
-    pathPhotos,
+  List<CloudinaryResponse> responses = await cloudinary.uploadFiles(
+    filePaths: filePaths,
     resourceType: CloudinaryResourceType.image,
     folder: cloudinaryCustomFolder,
   );
+
+  //OR
+  
+  List<CloudinaryResponse> responses = await cloudinary.uploadFiles(
+    filesBytes: filesBytes,
+    resourceType: CloudinaryResourceType.image,
+    folder: cloudinaryCustomFolder,
+  );
+
+  //OR
+  
+  final resources = await Future.wait(pathPhotos?.map((path) async =>
+      CloudinaryUploadResource(
+        filePath: fileSource == FileSource.PATH ? path : null,
+        fileBytes: fileSource == FileSource.BYTES
+            ? await getFileBytes(path)
+            : null,
+        resourceType: CloudinaryResourceType.image,
+        folder: cloudinaryCustomFolder,
+      )));
+  List<CloudinaryResponse> responses = await cloudinary.uploadResources(
+    resources);
+
   responses.forEach((response) {
     if(response.isSuccessful ?? false)
       urlPhotos.add(response.secureUrl);
   });
 ```
-This function does repeatedly calls to cloudinary.uploadFile(...) described in the step above.
+This function does repeatedly calls to cloudinary.uploadFile(...) / cloudinary.uploadResource(...) described in the step above.
 
 ### Do a single file delete *(this will use the cloudinary destroy method)*
 
