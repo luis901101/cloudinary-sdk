@@ -1,6 +1,7 @@
 ## 2.0.0+5 (Breaking Change)
 ### Added
 - Support for upload file from byte array
+- CloudinaryUploadResource class created to support uploadResource(...) and uploadResources(...) functions
 
 ### Changed
 - uploadFile(...) function params changed

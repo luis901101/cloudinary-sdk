@@ -3,6 +3,7 @@ import 'package:cloudinary_sdk/src/models/cloudinary_image.dart';
 import 'package:cloudinary_sdk/src/models/cloudinary_resource_type.dart';
 import 'package:cloudinary_sdk/src/data/cloudinary_client.dart';
 import 'package:cloudinary_sdk/src/models/cloudinary_response.dart';
+import 'package:cloudinary_sdk/src/models/cloudinary_upload_resource.dart';
 
 class Cloudinary {
   String _apiKey;
@@ -15,6 +16,42 @@ class Cloudinary {
     this._apiSecret = apiSecret;
     this._cloudName = cloudName;
     _client = CloudinaryClient(_apiKey, _apiSecret, _cloudName);
+  }
+
+  /// Uploads a file of [resourceType] with [fileName] to a [folder]
+  /// in your specified [cloudName]
+  ///
+  /// [resource] A [CloudinaryUploadResource] object with all necessary data
+  ///
+  /// Response:
+  /// Check all the atributes in the CloudinaryResponse to get the information you need... including secureUrl, publicId, etc.
+
+  /// See also:
+  ///
+  ///  * [CloudinaryUploadResource], to know which data to set
+  Future<CloudinaryResponse> uploadResource(
+      CloudinaryUploadResource resource) =>
+      _client.upload(
+          filePath: resource?.filePath,
+          fileBytes: resource?.fileBytes,
+          fileName: resource?.fileName,
+          folder: resource?.folder,
+          resourceType: resource?.resourceType,
+          optParams: resource?.optParams
+      );
+
+  /// This function uploads multiples files by calling uploadFile repeatedly
+  ///
+  /// [filePaths] the list of paths to the files to upload
+  /// [filesBytes] the list of byte array of the files to uploaded
+  Future<List<CloudinaryResponse>> uploadResources(
+      List<CloudinaryUploadResource> resources) async {
+    List<CloudinaryResponse> responses;
+    if (resources?.isNotEmpty ?? false)
+      responses = await Future.wait(
+          resources.map((resource) async => await uploadResource(resource))
+      ).catchError((err) => throw (err));
+    return responses;
   }
 
   /// Uploads a file of [resourceType] with [fileName] to a [folder]
@@ -36,15 +73,16 @@ class Cloudinary {
     CloudinaryResourceType resourceType,
     Map<String, dynamic> optParams
   }) =>
-    _client.upload(
-      filePath: filePath,
-      fileBytes: fileBytes,
-      fileName: fileName,
-      folder: folder,
-      resourceType: resourceType,
-      optParams: optParams
-    );
-
+      uploadResource(
+          CloudinaryUploadResource(
+            filePath: filePath,
+            fileBytes: fileBytes,
+            fileName: fileName,
+            folder: folder,
+            resourceType: resourceType,
+            optParams: optParams,
+          )
+      );
 
   /// This function uploads multiples files by calling uploadFile repeatedly
   ///
@@ -57,30 +95,16 @@ class Cloudinary {
     CloudinaryResourceType resourceType,
     Map<String, dynamic> optParams,
   }) async {
-
-    if((filePaths?.isEmpty ?? true) && (filesBytes?.isEmpty ?? true))
+    if ((filePaths?.isEmpty ?? true) && (filesBytes?.isEmpty ?? true))
       throw Exception("One of filePaths or filesBytes must not be empty");
 
-    if((filePaths?.isNotEmpty ?? false) && (filesBytes?.isNotEmpty ?? false))
-      throw Exception("Only one of filePaths or filesBytes must not be empty");
-
     List<CloudinaryResponse> responses;
-    if(filePaths?.isNotEmpty ?? false)
-      responses = await Future.wait(
-        filePaths.map(
-          (filePath) async => await _client.upload(
-            filePath: filePath,
-            folder: folder,
-            resourceType: resourceType,
-            optParams: optParams
-          )
-        )
-      ).catchError((err) => throw (err));
 
-    if(filesBytes?.isNotEmpty ?? false)
+    if (filesBytes?.isNotEmpty ?? false)
       responses = await Future.wait(
           filesBytes.map(
-                  (fileBytes) async => await _client.upload(
+                  (fileBytes) async =>
+              await uploadFile(
                   fileBytes: fileBytes,
                   folder: folder,
                   resourceType: resourceType,
@@ -88,6 +112,20 @@ class Cloudinary {
               )
           )
       ).catchError((err) => throw (err));
+
+    if (filePaths?.isNotEmpty ?? false)
+      responses = await Future.wait(
+          filePaths.map(
+                  (filePath) async =>
+              await uploadFile(
+                  filePath: filePath,
+                  folder: folder,
+                  resourceType: resourceType,
+                  optParams: optParams
+              )
+          )
+      ).catchError((err) => throw (err));
+
     return responses;
   }
 

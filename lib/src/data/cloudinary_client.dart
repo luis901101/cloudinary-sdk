@@ -28,20 +28,15 @@ class CloudinaryClient extends CloudinaryApi {
   ///
   /// Response:
   /// Check all the atributes in the CloudinaryResponse to get the information you need... including secureUrl, publicId, etc.
-  Future<CloudinaryResponse> upload({
-    String filePath,
-    List<int> fileBytes,
-    String fileName,
-    String folder,
-    CloudinaryResourceType resourceType,
-    Map<String, dynamic> optParams
-  }) async {
-
-    if(filePath == null && fileBytes == null)
+  Future<CloudinaryResponse> upload(
+      {String filePath,
+      List<int> fileBytes,
+      String fileName,
+      String folder,
+      CloudinaryResourceType resourceType,
+      Map<String, dynamic> optParams}) async {
+    if (filePath == null && fileBytes == null)
       throw Exception("One of filePath or fileBytes must not be null");
-
-    if(filePath != null && fileBytes != null)
-      throw Exception("Only one of filePath or fileBytes must be used");
 
     int timeStamp = new DateTime.now().millisecondsSinceEpoch;
     resourceType ??= CloudinaryResourceType.auto;
@@ -57,12 +52,11 @@ class CloudinaryClient extends CloudinaryApi {
     //Setting the optParams... this would override the public_id and folder if specified by user.
     if (optParams != null) params.addAll(optParams);
     params["api_key"] = _apiKey;
-    params["file"] = filePath != null ?
-      await MultipartFile.fromFile(filePath, filename: fileName) :
-    await MultipartFile.fromBytes(fileBytes, filename: fileName ?? DateTime
-        .now()
-        .millisecondsSinceEpoch
-        ?.toString());
+    params["file"] = fileBytes != null
+        ? await MultipartFile.fromBytes(fileBytes,
+            filename:
+                fileName ?? DateTime.now().millisecondsSinceEpoch?.toString())
+        : await MultipartFile.fromFile(filePath, filename: fileName);
     params["timestamp"] = timeStamp;
     params["signature"] =
         getSignature(secret: _apiSecret, timeStamp: timeStamp, params: params);

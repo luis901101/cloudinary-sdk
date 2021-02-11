@@ -370,12 +370,14 @@ class _MyHomePageState extends State<MyHomePage> {
           break;
       }
 
-      CloudinaryResponse response = await cloudinary.uploadFile(
-        filePath: filePath,
-        fileBytes: fileBytes,
-        resourceType: CloudinaryResourceType.image,
-        folder: cloudinaryCustomFolder,
-        fileName: 'asd@asd.com'
+      CloudinaryResponse response = await cloudinary.uploadResource(
+        CloudinaryUploadResource(
+          filePath: filePath,
+          fileBytes: fileBytes,
+          resourceType: CloudinaryResourceType.image,
+          folder: cloudinaryCustomFolder,
+          fileName: 'asd@asd.com'
+        )
       );
 
       if ((response.isSuccessful ?? false) &&
@@ -392,29 +394,21 @@ class _MyHomePageState extends State<MyHomePage> {
 
   doMultipleUpload() async {
     try {
-      List<String> filePaths;
-      List<List<int>> filesBytes;
+      List<CloudinaryUploadResource> resources = [];
 
-      switch(fileSource) {
-        case FileSource.PATH:
-          filePaths = pathPhotos;
-          break;
-        case FileSource.BYTES:
-          filesBytes = await Future.wait(
-              pathPhotos.map((path) async => await getFileBytes(path))
-          ).catchError((err) => throw (err));
-          break;
-      }
+      resources = await Future.wait(pathPhotos?.map((path) async =>
+          CloudinaryUploadResource(
+            filePath: fileSource == FileSource.PATH ? path : null,
+            fileBytes: fileSource == FileSource.BYTES
+                ? await getFileBytes(path)
+                : null,
+            resourceType: CloudinaryResourceType.image,
+            folder: cloudinaryCustomFolder,
+          )));
 
-      List<CloudinaryResponse> responses = await cloudinary.uploadFiles(
-        filePaths: filePaths,
-        filesBytes: filesBytes,
-        resourceType: CloudinaryResourceType.image,
-        folder: cloudinaryCustomFolder,
-      );
+      List<CloudinaryResponse> responses = await cloudinary.uploadResources(
+          resources);
       responses.forEach((response) {
-//      if(response.error?.isNotEmpty ?? false)
-//        throw Exception(response.error);
         if (response.isSuccessful ?? false)
           urlPhotos.add(response.secureUrl);
         else {
