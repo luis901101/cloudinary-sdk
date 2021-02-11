@@ -1,3 +1,11 @@
+## 2.0.0+5 (Breaking Change)
+### Added
+- Support for upload file from byte array
+
+### Changed
+- uploadFile(...) function params changed
+- uploadFiles(...) function params changed
+
 ## 1.0.3+4
 ### Fixed
 - Fixed bug on uploadFile function that was ignoring optParams

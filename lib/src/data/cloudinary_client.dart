@@ -18,25 +18,36 @@ class CloudinaryClient extends CloudinaryApi {
 
   /// Uploads a file of [resourceType] with [fileName] to a [folder]
   /// in your specified [cloudName]
+  /// The file to be uploaded can be from a path or a byte array
   ///
+  /// [filePath] path to the file to upload
+  /// [fileBytes] byte array of the file to uploaded
   /// [resourceType] defaults to [CloudinaryResourceType.auto]
   /// [fileName] is not mandatory, if not specified then a random name will be used
   /// [optParams] a Map of optional parameters as defined in https://cloudinary.com/documentation/image_upload_api_reference
   ///
   /// Response:
   /// Check all the atributes in the CloudinaryResponse to get the information you need... including secureUrl, publicId, etc.
-  Future<CloudinaryResponse> upload(String filePath,
-      {String fileName,
-      String folder,
-      CloudinaryResourceType resourceType,
-      Map<String, dynamic> optParams}) async {
+  Future<CloudinaryResponse> upload({
+    String filePath,
+    List<int> fileBytes,
+    String fileName,
+    String folder,
+    CloudinaryResourceType resourceType,
+    Map<String, dynamic> optParams
+  }) async {
+
+    if(filePath == null && fileBytes == null)
+      throw Exception("One of filePath or fileBytes must not be null");
+
+    if(filePath != null && fileBytes != null)
+      throw Exception("Only one of filePath or fileBytes must be used");
+
     int timeStamp = new DateTime.now().millisecondsSinceEpoch;
     resourceType ??= CloudinaryResourceType.auto;
 
     if (_apiSecret == null || _apiKey == null)
       throw Exception("apiKey and apiSecret must not be null");
-
-    if (filePath == null) throw Exception("filePath must not be null");
 
     Map<String, dynamic> params = {};
 
@@ -46,7 +57,12 @@ class CloudinaryClient extends CloudinaryApi {
     //Setting the optParams... this would override the public_id and folder if specified by user.
     if (optParams != null) params.addAll(optParams);
     params["api_key"] = _apiKey;
-    params["file"] = await MultipartFile.fromFile(filePath, filename: fileName);
+    params["file"] = filePath != null ?
+      await MultipartFile.fromFile(filePath, filename: fileName) :
+    await MultipartFile.fromBytes(fileBytes, filename: fileName ?? DateTime
+        .now()
+        .millisecondsSinceEpoch
+        ?.toString());
     params["timestamp"] = timeStamp;
     params["signature"] =
         getSignature(secret: _apiSecret, timeStamp: timeStamp, params: params);

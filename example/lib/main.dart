@@ -32,6 +32,16 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
+enum UploadMode {
+  SINGLE,
+  MULTIPLE,
+}
+
+enum FileSource {
+  PATH,
+  BYTES,
+}
+
 class _MyHomePageState extends State<MyHomePage> {
   //Change this values with your own
   final String cloudinaryCustomFolder = "test/myfolder";
@@ -46,13 +56,77 @@ class _MyHomePageState extends State<MyHomePage> {
   bool loading = false;
   Cloudinary cloudinary;
   String errorMessage;
+  UploadMode uploadMode;
+  FileSource fileSource;
 
   @override
   void initState() {
     super.initState();
     cloudinary =
         Cloudinary(cloudinaryApiKey, cloudinaryApiSecret, cloudinaryCloudName);
+    uploadMode = UploadMode.MULTIPLE;
+    fileSource = FileSource.PATH;
   }
+
+  onUploadModeChanged(UploadMode value) => setState(() => uploadMode = value);
+  onUploadSourceChanged(FileSource value) =>
+      setState(() => fileSource = value);
+
+  Widget get uploadModeView =>
+    Column(
+      children: [
+        Text("Upload mode"),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            Expanded(
+              child: RadioListTile<UploadMode>(
+                title: Text("Single"),
+                value: UploadMode.SINGLE,
+                groupValue: uploadMode,
+                onChanged: onUploadModeChanged
+              ),
+            ),
+            Expanded(
+              child: RadioListTile<UploadMode>(
+                title: Text("Multiple"),
+                value: UploadMode.MULTIPLE,
+                groupValue: uploadMode,
+                onChanged: onUploadModeChanged
+              ),
+            ),
+          ],
+        )
+      ],
+    );
+
+  Widget get uploadSourceView =>
+    Column(
+      children: [
+        Text("File source"),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            Expanded(
+              child: RadioListTile<FileSource>(
+                title: Text("Path"),
+                value: FileSource.PATH,
+                groupValue: fileSource,
+                onChanged: onUploadSourceChanged
+              ),
+            ),
+            Expanded(
+              child: RadioListTile<FileSource>(
+                title: Text("Bytes"),
+                value: FileSource.BYTES,
+                groupValue: fileSource,
+                onChanged: onUploadSourceChanged
+              ),
+            ),
+          ],
+        )
+      ],
+    );
 
   @override
   Widget build(BuildContext context) {
@@ -133,8 +207,33 @@ class _MyHomePageState extends State<MyHomePage> {
                       width: 100,
                       height: 100,
                     );
-                  }),
+                  })..add(
+                    Visibility(
+                      visible: loading,
+                      child: Center(
+                        child: CircularProgressIndicator(),
+                      )),
+                  ),
                 ),
+                SizedBox(
+                  height: 32,
+                ),
+                Visibility(
+                    visible: errorMessage?.isNotEmpty ?? false,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          "$errorMessage",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                              fontSize: 18, color: Colors.red.shade900),
+                        ),
+                        SizedBox(
+                          height: 128,
+                        ),
+                      ],
+                    )),
                 ElevatedButton(
                   onPressed: loading || urlPhotos.isEmpty
                       ? null
@@ -155,9 +254,11 @@ class _MyHomePageState extends State<MyHomePage> {
                     textAlign: TextAlign.center,
                   ),
                 ),
-                SizedBox(
-                  height: 32,
-                ),
+                SizedBox(height: 32,),
+                uploadModeView,
+                SizedBox(height: 16,),
+                uploadSourceView,
+                SizedBox(height: 32,),
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 16),
                   child: Row(
@@ -231,30 +332,6 @@ class _MyHomePageState extends State<MyHomePage> {
                     ],
                   ),
                 ),
-                SizedBox(
-                  height: 32,
-                ),
-                Visibility(
-                    visible: loading,
-                    child: Center(
-                      child: CircularProgressIndicator(),
-                    )),
-                Visibility(
-                    visible: errorMessage?.isNotEmpty ?? false,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          "$errorMessage",
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                              fontSize: 18, color: Colors.red.shade900),
-                        ),
-                        SizedBox(
-                          height: 128,
-                        ),
-                      ],
-                    )),
               ],
             ),
           ),
@@ -272,6 +349,89 @@ class _MyHomePageState extends State<MyHomePage> {
     if (filePath?.isNotEmpty ?? false) {
       pathPhotos.add(filePath);
       setState(() {});
+    }
+  }
+
+  Future<List<int>> getFileBytes(String path) async {
+    return await File(path).readAsBytes();
+  }
+
+  doSingleUpload() async {
+    try {
+      String filePath;
+      List<int> fileBytes;
+
+      switch(fileSource) {
+        case FileSource.PATH:
+          filePath = pathPhotos[0];
+          break;
+        case FileSource.BYTES:
+          fileBytes = await getFileBytes(pathPhotos[0]);
+          break;
+      }
+
+      CloudinaryResponse response = await cloudinary.uploadFile(
+        filePath: filePath,
+        fileBytes: fileBytes,
+        resourceType: CloudinaryResourceType.image,
+        folder: cloudinaryCustomFolder,
+        fileName: 'asd@asd.com'
+      );
+
+      if ((response.isSuccessful ?? false) &&
+          (response.secureUrl?.isNotEmpty ?? false))
+        urlPhotos.add(response.secureUrl);
+      else {
+        errorMessage = response?.error;
+      }
+    } catch (e) {
+      errorMessage = e?.toString();
+      print(e);
+    }
+  }
+
+  doMultipleUpload() async {
+    try {
+      List<String> filePaths;
+      List<List<int>> filesBytes;
+
+      switch(fileSource) {
+        case FileSource.PATH:
+          filePaths = pathPhotos;
+          break;
+        case FileSource.BYTES:
+          filesBytes = await Future.wait(
+              pathPhotos.map((path) async => await getFileBytes(path))
+          ).catchError((err) => throw (err));
+          break;
+      }
+
+      List<CloudinaryResponse> responses = await cloudinary.uploadFiles(
+        filePaths: filePaths,
+        filesBytes: filesBytes,
+        resourceType: CloudinaryResourceType.image,
+        folder: cloudinaryCustomFolder,
+      );
+      responses.forEach((response) {
+//      if(response.error?.isNotEmpty ?? false)
+//        throw Exception(response.error);
+        if (response.isSuccessful ?? false)
+          urlPhotos.add(response.secureUrl);
+        else {
+          errorMessage = response?.error;
+        }
+      });
+    } catch (e) {
+      errorMessage = e?.toString();
+      print(e);
+    }
+  }
+
+  upload() {
+    showLoading();
+    switch(uploadMode) {
+      case UploadMode.MULTIPLE: return doMultipleUpload();
+      case UploadMode.SINGLE: return doSingleUpload();
     }
   }
 
@@ -293,33 +453,7 @@ class _MyHomePageState extends State<MyHomePage> {
           );
           break;
         case uploadPhotos:
-          showLoading();
-
-          //Uncomment this to test the single file upload
-//          CloudinaryResponse response = await cloudinary.uploadFile(
-//            pathPhotos[0],
-//            resourceType: CloudinaryResourceType.image,
-//            folder: cloudinaryCustomFolder,
-//            fileName: 'asd@asd.com'
-//          );
-//          if(response.secureUrl?.isNotEmpty ?? false)
-//            urlPhotos.add(response.secureUrl);
-
-          List<CloudinaryResponse> responses = await cloudinary.uploadFiles(
-            pathPhotos,
-            resourceType: CloudinaryResourceType.image,
-            folder: cloudinaryCustomFolder,
-          );
-          responses.forEach((response) {
-//            if(response.error?.isNotEmpty ?? false)
-//              throw Exception(response.error);
-            if (response.isSuccessful ?? false)
-              urlPhotos.add(response.secureUrl);
-            else {
-              errorMessage = response?.error;
-              return;
-            }
-          });
+          await upload();
           break;
         case deleteUploadedPhotos:
           showLoading();

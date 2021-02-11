@@ -20,33 +20,74 @@ class Cloudinary {
   /// Uploads a file of [resourceType] with [fileName] to a [folder]
   /// in your specified [cloudName]
   ///
+  /// [filePath] path to the file to upload
+  /// [fileBytes] byte array of the file to uploaded
   /// [resourceType] defaults to [CloudinaryResourceType.auto]
   /// [fileName] is not mandatory, if not specified then a random name will be used
   /// [optParams] a Map of optional parameters as defined in https://cloudinary.com/documentation/image_upload_api_reference
   ///
   /// Response:
   /// Check all the atributes in the CloudinaryResponse to get the information you need... including secureUrl, publicId, etc.
-  Future<CloudinaryResponse> uploadFile(String filePath,
-          {String fileName,
-          String folder,
-          CloudinaryResourceType resourceType,
-          Map<String, dynamic> optParams}) =>
-      _client.upload(filePath,
-          fileName: fileName,
-          folder: folder,
-          resourceType: resourceType,
-          optParams: optParams);
+  Future<CloudinaryResponse> uploadFile({
+    String filePath,
+    List<int> fileBytes,
+    String fileName,
+    String folder,
+    CloudinaryResourceType resourceType,
+    Map<String, dynamic> optParams
+  }) =>
+    _client.upload(
+      filePath: filePath,
+      fileBytes: fileBytes,
+      fileName: fileName,
+      folder: folder,
+      resourceType: resourceType,
+      optParams: optParams
+    );
+
 
   /// This function uploads multiples files by calling uploadFile repeatedly
-  Future<List<CloudinaryResponse>> uploadFiles(List<String> filePaths,
-      {String folder,
-      CloudinaryResourceType resourceType,
-      Map<String, dynamic> optParams}) async {
-    List<CloudinaryResponse> responses = await Future.wait(filePaths.map(
-        (filePath) async => await _client.upload(filePath,
+  ///
+  /// [filePaths] the list of paths to the files to upload
+  /// [filesBytes] the list of byte array of the files to uploaded
+  Future<List<CloudinaryResponse>> uploadFiles({
+    List<String> filePaths,
+    List<List<int>> filesBytes,
+    String folder,
+    CloudinaryResourceType resourceType,
+    Map<String, dynamic> optParams,
+  }) async {
+
+    if((filePaths?.isEmpty ?? true) && (filesBytes?.isEmpty ?? true))
+      throw Exception("One of filePaths or filesBytes must not be empty");
+
+    if((filePaths?.isNotEmpty ?? false) && (filesBytes?.isNotEmpty ?? false))
+      throw Exception("Only one of filePaths or filesBytes must not be empty");
+
+    List<CloudinaryResponse> responses;
+    if(filePaths?.isNotEmpty ?? false)
+      responses = await Future.wait(
+        filePaths.map(
+          (filePath) async => await _client.upload(
+            filePath: filePath,
             folder: folder,
             resourceType: resourceType,
-            optParams: optParams))).catchError((err) => throw (err));
+            optParams: optParams
+          )
+        )
+      ).catchError((err) => throw (err));
+
+    if(filesBytes?.isNotEmpty ?? false)
+      responses = await Future.wait(
+          filesBytes.map(
+                  (fileBytes) async => await _client.upload(
+                  fileBytes: fileBytes,
+                  folder: folder,
+                  resourceType: resourceType,
+                  optParams: optParams
+              )
+          )
+      ).catchError((err) => throw (err));
     return responses;
   }
 
