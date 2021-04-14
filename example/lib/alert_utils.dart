@@ -6,10 +6,10 @@ typedef ReviewCallback<T> = Function(T rate);
 
 class AlertUtils {
   static showImagePickerModal({
-    BuildContext context,
-    VoidCallback onImageFromCamera,
-    VoidCallback onImageFromGallery,
-    VoidCallback onImageRemove,
+    required BuildContext context,
+    VoidCallback? onImageFromCamera,
+    VoidCallback? onImageFromGallery,
+    VoidCallback? onImageRemove,
   }) {
     showModalBottomSheet(
         context: context,

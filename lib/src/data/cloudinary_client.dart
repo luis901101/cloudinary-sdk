@@ -5,11 +5,11 @@ import 'package:dio/dio.dart';
 import 'cloudinary_api.dart';
 
 class CloudinaryClient extends CloudinaryApi {
-  String _cloudName;
-  String _apiKey;
-  String _apiSecret;
+  String? _cloudName;
+  String? _apiKey;
+  String? _apiSecret;
 
-  CloudinaryClient(String apiKey, String apiSecret, String cloudName)
+  CloudinaryClient(String? apiKey, String? apiSecret, String? cloudName)
       : super(apiKey: apiKey, apiSecret: apiSecret) {
     this._apiKey = apiKey;
     this._apiSecret = apiSecret;
@@ -29,12 +29,12 @@ class CloudinaryClient extends CloudinaryApi {
   /// Response:
   /// Check all the atributes in the CloudinaryResponse to get the information you need... including secureUrl, publicId, etc.
   Future<CloudinaryResponse> upload(
-      {String filePath,
-      List<int> fileBytes,
-      String fileName,
-      String folder,
-      CloudinaryResourceType resourceType,
-      Map<String, dynamic> optParams}) async {
+      {String? filePath,
+      List<int>? fileBytes,
+      String? fileName,
+      String? folder,
+      CloudinaryResourceType? resourceType,
+      Map<String, dynamic>? optParams}) async {
     if (filePath == null && fileBytes == null)
       throw Exception("One of filePath or fileBytes must not be null");
 
@@ -55,8 +55,8 @@ class CloudinaryClient extends CloudinaryApi {
     params["file"] = fileBytes != null
         ? await MultipartFile.fromBytes(fileBytes,
             filename:
-                fileName ?? DateTime.now().millisecondsSinceEpoch?.toString())
-        : await MultipartFile.fromFile(filePath, filename: fileName);
+                fileName ?? DateTime.now().millisecondsSinceEpoch.toString())
+        : await MultipartFile.fromFile(filePath!, filename: fileName);
     params["timestamp"] = timeStamp;
     params["signature"] =
         getSignature(secret: _apiSecret, timeStamp: timeStamp, params: params);
@@ -64,19 +64,19 @@ class CloudinaryClient extends CloudinaryApi {
     FormData formData = new FormData.fromMap(params);
 
     Response response;
-    int statusCode;
+    int? statusCode;
     CloudinaryResponse cloudinaryResponse;
     try {
-      response = await post(_cloudName + "/${resourceType.name}/upload",
+      response = await post(_cloudName! + "/${resourceType.name}/upload",
           data: formData);
-      statusCode = response?.statusCode;
+      statusCode = response.statusCode;
       cloudinaryResponse = CloudinaryResponse.fromJsonMap(response.data);
     } catch (error, stacktrace) {
-      print("Exception occured: $error stackTrace: $stacktrace");
+      print("Exception occurred: $error stackTrace: $stacktrace");
       if (error is DioError) statusCode = error.response?.statusCode;
       cloudinaryResponse = CloudinaryResponse.fromError("$error");
     }
-    if (cloudinaryResponse != null) cloudinaryResponse..statusCode = statusCode;
+    cloudinaryResponse..statusCode = statusCode;
     return cloudinaryResponse;
   }
 
@@ -91,9 +91,9 @@ class CloudinaryClient extends CloudinaryApi {
   /// Response:
   /// Check response.isResultOk to know if the file was successfully deleted.
   Future<CloudinaryResponse> destroy(String publicId,
-      {CloudinaryResourceType resourceType,
-      bool invalidate,
-      Map<String, dynamic> optParams}) async {
+      {CloudinaryResourceType? resourceType,
+      bool? invalidate,
+      Map<String, dynamic>? optParams}) async {
     int timeStamp = new DateTime.now().millisecondsSinceEpoch;
     resourceType ??= CloudinaryResourceType.image;
 
@@ -114,18 +114,18 @@ class CloudinaryClient extends CloudinaryApi {
 
     Response response;
     CloudinaryResponse cloudinaryResponse;
-    int statusCode;
+    int? statusCode;
     try {
-      response = await post(_cloudName + "/${resourceType.name}/destroy",
+      response = await post(_cloudName! + "/${resourceType.name}/destroy",
           data: formData);
-      statusCode = response?.statusCode;
+      statusCode = response.statusCode;
       cloudinaryResponse = CloudinaryResponse.fromJsonMap(response.data);
     } catch (error, stacktrace) {
       print("Exception occured: $error stackTrace: $stacktrace");
       if (error is DioError) statusCode = error.response?.statusCode;
       cloudinaryResponse = CloudinaryResponse.fromError("$error");
     }
-    if (cloudinaryResponse != null) cloudinaryResponse..statusCode = statusCode;
+    cloudinaryResponse..statusCode = statusCode;
     return cloudinaryResponse;
   }
 
@@ -146,13 +146,13 @@ class CloudinaryClient extends CloudinaryApi {
   /// Response:
   /// Check 'deleted' map inside CloudinaryResponse to know which files were deleted
   Future<CloudinaryResponse> deleteResources(
-      {List<String> publicIds,
-      String prefix,
-      bool all,
-      CloudinaryResourceType resourceType,
-      CloudinaryDeliveryType deliveryType,
-      bool invalidate,
-      Map<String, dynamic> optParams}) async {
+      {List<String>? publicIds,
+      String? prefix,
+      bool? all,
+      CloudinaryResourceType? resourceType,
+      CloudinaryDeliveryType? deliveryType,
+      bool? invalidate,
+      Map<String, dynamic>? optParams}) async {
     int timeStamp = new DateTime.now().millisecondsSinceEpoch;
     resourceType ??= CloudinaryResourceType.image;
     deliveryType ??= CloudinaryDeliveryType.upload;
@@ -175,23 +175,23 @@ class CloudinaryClient extends CloudinaryApi {
     params["signature"] =
         getSignature(secret: _apiSecret, timeStamp: timeStamp, params: params);
 
-    FormData formData = new FormData.fromMap(params);
+    FormData formData = new FormData.fromMap(params, ListFormat.multiCompatible);
 
     Response response;
     CloudinaryResponse cloudinaryResponse;
-    int statusCode;
+    int? statusCode;
     try {
       response = await delete(
-          _cloudName + "/resources/${resourceType.name}/${deliveryType.name}",
-          data: formData);
-      statusCode = response?.statusCode;
+          _cloudName! + "/resources/${resourceType.name}/${deliveryType.name}",
+          data: formData,);
+      statusCode = response.statusCode;
       cloudinaryResponse = CloudinaryResponse.fromJsonMap(response.data);
     } catch (error, stacktrace) {
       print("Exception occured: $error stackTrace: $stacktrace");
       if (error is DioError) statusCode = error.response?.statusCode;
       cloudinaryResponse = CloudinaryResponse.fromError("$error");
     }
-    if (cloudinaryResponse != null) cloudinaryResponse..statusCode = statusCode;
+    cloudinaryResponse..statusCode = statusCode;
     return cloudinaryResponse;
   }
 }

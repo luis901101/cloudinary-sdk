@@ -1,3 +1,13 @@
+## 3.0.0+6 (Breaking Change)
+### Added
+- Support for null-safety
+
+### Changed
+- Example updated with BATCH and ITERATIVE resource delete
+
+### Fixed
+- Fixed bug that prevented deleting multiple resources from a public_ids list
+
 ## 2.0.0+5 (Breaking Change)
 ### Added
 - Support for upload file from byte array

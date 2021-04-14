@@ -1,27 +1,27 @@
 class CloudinaryResponse {
-  int statusCode;
-  String publicId;
-  int version;
-  int width;
-  int height;
-  String format;
-  String createdAt;
-  String resourceType;
-  List<Object> tags;
-  int bytes;
-  String type;
-  String etag;
-  String url;
-  String secureUrl;
-  String signature;
-  String originalFilename;
-  String result;
-  String error;
-  Map<String, dynamic> deleted;
-  bool partial;
+  int? statusCode;
+  String? publicId;
+  int? version;
+  int? width;
+  int? height;
+  String? format;
+  String? createdAt;
+  String? resourceType;
+  List<dynamic>? tags;
+  int? bytes;
+  String? type;
+  String? etag;
+  String? url;
+  String? secureUrl;
+  String? signature;
+  String? originalFilename;
+  String? result;
+  String? error;
+  Map<String, dynamic>? deleted;
+  bool? partial;
 
   bool get isSuccessful =>
-      ((statusCode ??= 200) >= 200 && statusCode < 300) && isResultOk;
+      ((statusCode ??= 200) >= 200 && statusCode! < 300) && isResultOk;
 
   bool get isResultOk => (error?.isEmpty ?? true) && (result ??= 'ok') == 'ok';
 

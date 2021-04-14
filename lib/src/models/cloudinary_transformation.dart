@@ -76,7 +76,7 @@ class CloudinaryTransformation {
     return param('u', cloudinaryImage.publicId.replaceAll('/', ':'));
   }
 
-  String generate() {
+  String? generate() {
     if (_params.isNotEmpty) {
       _chains.add(_params);
     }
@@ -122,6 +122,6 @@ class CloudinaryTransformation {
 
   @override
   String toString() {
-    return generate();
+    return generate()!;
   }
 }

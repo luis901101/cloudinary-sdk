@@ -4,21 +4,21 @@ import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 
 class ImageUtils {
-  static Future<File> _retrieveLostData() async {
+  static Future<File?> _retrieveLostData() async {
     if (!Platform.isAndroid) return null;
     final LostData response = await ImagePicker().getLostData();
-    return response?.file?.path != null ? File(response?.file?.path) : null;
+    return response.file?.path != null ? File(response.file!.path) : null;
   }
 
   static const String cameraAccessDenied = "camera_access_denied";
   static const String galleryAccessDenied = "photo_access_denied";
 
   static Future<Map<String, dynamic>> _pickImageFrom(
-      {ImageSource source, CameraDevice cameraDevice}) async {
+      {ImageSource? source, CameraDevice? cameraDevice}) async {
     Map<String, dynamic> resource;
 
-    PickedFile pickedFile;
-    File file;
+    PickedFile? pickedFile;
+    File? file;
     try {
       pickedFile = await ImagePicker().getImage(
         source: source ?? ImageSource.camera,
@@ -27,18 +27,18 @@ class ImageUtils {
         maxHeight: 1080,
         imageQuality: 100,
       );
-      if (pickedFile?.path != null) file = File(pickedFile?.path);
+      if (pickedFile?.path != null) file = File(pickedFile!.path);
       if (file == null) file = await _retrieveLostData();
       resource = {'status': 'SUCCESS', 'data': file};
     } on PlatformException catch (e) {
       resource = {
         'status': 'ERROR',
         'data': file,
-        'message': e?.message,
+        'message': e.message,
         'exception': e,
-        'extras': e?.details
+        'extras': e.details
       };
-      switch (e?.code) {
+      switch (e.code) {
         case cameraAccessDenied:
           resource['message'] =
               'Camera permission denied. You have to grant permission from system settings';
@@ -52,9 +52,8 @@ class ImageUtils {
       resource = {
         'status': 'ERROR',
         'data': file,
-        'message': e?.message,
+        'message': e.toString(),
         'exception': e,
-        'extras': e?.details
       };
     }
     return resource;
@@ -64,16 +63,16 @@ class ImageUtils {
       await _pickImageFrom(source: ImageSource.gallery);
 
   static Future<Map<String, dynamic>> takePhoto(
-          {CameraDevice cameraDevice}) async =>
+          {CameraDevice? cameraDevice}) async =>
       await _pickImageFrom(
           source: ImageSource.camera, cameraDevice: cameraDevice);
 
-  static showPermissionExplanation({BuildContext context, String message}) {
+  static showPermissionExplanation({required BuildContext context, String? message}) {
     showDialog(
         context: context,
         builder: (innerContext) => AlertDialog(
               title: Text('Warning'),
-              content: Text(message),
+              content: Text(message!),
               actions: [
                 ElevatedButton(
                     onPressed: () => Navigator.pop(context), child: Text('OK'))

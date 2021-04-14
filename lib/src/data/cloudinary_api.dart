@@ -6,10 +6,10 @@ class CloudinaryApi {
   static const BASE_URL_PROTOCOL = "https://";
   static const BASE_URL = "api.cloudinary.com/v1_1/";
   static const API_BASE_URL = "$BASE_URL_PROTOCOL$BASE_URL";
-  Dio _dio;
-  Dio _deleteDio;
+  late Dio _dio;
+  late Dio _deleteDio;
 
-  CloudinaryApi({String apiKey, String apiSecret}) {
+  CloudinaryApi({String? apiKey, String? apiSecret}) {
     _dio = Dio(BaseOptions(
       baseUrl: API_BASE_URL,
     ));
@@ -22,11 +22,11 @@ class CloudinaryApi {
   Future<Response<T>> post<T>(
     String path, {
     data,
-    Map<String, dynamic> queryParameters,
-    Options options,
-    CancelToken cancelToken,
-    ProgressCallback onSendProgress,
-    ProgressCallback onReceiveProgress,
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+    CancelToken? cancelToken,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress,
   }) =>
       _dio.post(path,
           data: data,
@@ -40,9 +40,9 @@ class CloudinaryApi {
   Future<Response<T>> delete<T>(
     String path, {
     data,
-    Map<String, dynamic> queryParameters,
-    Options options,
-    CancelToken cancelToken,
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+    CancelToken? cancelToken,
   }) =>
       _deleteDio.delete(
         path,
@@ -53,10 +53,10 @@ class CloudinaryApi {
       );
 
   /// Generates a proper Cloudinary Authentication Signature according to https://cloudinary.com/documentation/upload_images#generating_authentication_signatures
-  String getSignature(
-      {String secret, int timeStamp, Map<String, dynamic> params}) {
+  String? getSignature(
+      {String? secret, int? timeStamp, Map<String, dynamic>? params}) {
     timeStamp ??= DateTime.now().millisecondsSinceEpoch;
-    String signature;
+    String? signature;
     try {
       Map<String, dynamic> signatureParams = {}..addAll(params ?? {});
       signatureParams["timestamp"] = timeStamp;

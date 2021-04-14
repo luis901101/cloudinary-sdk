@@ -138,4 +138,4 @@ The cloudinary.deleteFiles(...) function is fully documented, you can check the 
 ```
 
 ### Note:
-It's recommended to check the example code for a better idea of how to work with this plugin.
+It's recommended to check the example code for a better idea of how to work with this package.

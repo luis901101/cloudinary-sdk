@@ -11,12 +11,12 @@ import 'package:cloudinary_sdk/cloudinary_sdk.dart';
 ///
 /// Note: one of [filePath] or [fileBytes] must be set
 class CloudinaryUploadResource {
-  final String filePath;
-  final List<int> fileBytes;
-  final String fileName;
-  final String folder;
-  final CloudinaryResourceType resourceType;
-  final Map<String, dynamic> optParams;
+  final String? filePath;
+  final List<int>? fileBytes;
+  final String? fileName;
+  final String? folder;
+  final CloudinaryResourceType? resourceType;
+  final Map<String, dynamic>? optParams;
 
   CloudinaryUploadResource(
       {this.filePath,

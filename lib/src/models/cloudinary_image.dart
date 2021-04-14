@@ -4,10 +4,10 @@ class CloudinaryImage {
   static const String _baseUrl =
       'https://res.cloudinary.com/:cloud/image/upload/';
 
-  String _pathStart;
-  String _pathEnd;
-  String _publicId;
-  String _originalUrl;
+  late String _pathStart;
+  late String _pathEnd;
+  late String _publicId;
+  late String _originalUrl;
 
   String get url => _originalUrl;
 
@@ -37,7 +37,5 @@ class CloudinaryImage {
   }
 
   @override
-  String toString() {
-    return _originalUrl;
-  }
+  String toString() => _originalUrl;
 }

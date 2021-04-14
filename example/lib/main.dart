@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:cloudinary_sdk/cloudinary_sdk.dart';
 import 'package:cloudinary_sdk_example/alert_utils.dart';
@@ -24,9 +25,9 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
+  MyHomePage({Key? key, this.title}) : super(key: key);
 
-  final String title;
+  final String? title;
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
@@ -42,6 +43,11 @@ enum FileSource {
   BYTES,
 }
 
+enum DeleteMode {
+  BATCH,
+  ITERATIVE,
+}
+
 class _MyHomePageState extends State<MyHomePage> {
   //Change this values with your own
   final String cloudinaryCustomFolder = "test/myfolder";
@@ -54,85 +60,106 @@ class _MyHomePageState extends State<MyHomePage> {
   List<String> pathPhotos = [];
   List<String> urlPhotos = [];
   bool loading = false;
-  Cloudinary cloudinary;
-  String errorMessage;
-  UploadMode uploadMode;
-  FileSource fileSource;
+  late Cloudinary cloudinary;
+  String? errorMessage;
+  UploadMode uploadMode = UploadMode.SINGLE;
+  FileSource fileSource = FileSource.PATH;
+  DeleteMode deleteMode = DeleteMode.BATCH;
 
   @override
   void initState() {
     super.initState();
     cloudinary =
         Cloudinary(cloudinaryApiKey, cloudinaryApiSecret, cloudinaryCloudName);
-    uploadMode = UploadMode.MULTIPLE;
-    fileSource = FileSource.PATH;
   }
 
-  onUploadModeChanged(UploadMode value) => setState(() => uploadMode = value);
-  onUploadSourceChanged(FileSource value) =>
-      setState(() => fileSource = value);
+  onUploadModeChanged(UploadMode? value) => setState(() => uploadMode = value!);
 
-  Widget get uploadModeView =>
-    Column(
-      children: [
-        Text("Upload mode"),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            Expanded(
-              child: RadioListTile<UploadMode>(
-                title: Text("Single"),
-                value: UploadMode.SINGLE,
-                groupValue: uploadMode,
-                onChanged: onUploadModeChanged
-              ),
-            ),
-            Expanded(
-              child: RadioListTile<UploadMode>(
-                title: Text("Multiple"),
-                value: UploadMode.MULTIPLE,
-                groupValue: uploadMode,
-                onChanged: onUploadModeChanged
-              ),
-            ),
-          ],
-        )
-      ],
-    );
+  onUploadSourceChanged(FileSource? value) =>
+      setState(() => fileSource = value!);
 
-  Widget get uploadSourceView =>
-    Column(
-      children: [
-        Text("File source"),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            Expanded(
-              child: RadioListTile<FileSource>(
-                title: Text("Path"),
-                value: FileSource.PATH,
-                groupValue: fileSource,
-                onChanged: onUploadSourceChanged
+  onDeleteModeChanged(DeleteMode? value) => setState(() => deleteMode = value!);
+
+  Widget get uploadModeView => Column(
+        children: [
+          Text("Upload mode"),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Expanded(
+                child: RadioListTile<UploadMode>(
+                    title: Text("Single"),
+                    value: UploadMode.SINGLE,
+                    groupValue: uploadMode,
+                    onChanged: onUploadModeChanged),
               ),
-            ),
-            Expanded(
-              child: RadioListTile<FileSource>(
-                title: Text("Bytes"),
-                value: FileSource.BYTES,
-                groupValue: fileSource,
-                onChanged: onUploadSourceChanged
+              Expanded(
+                child: RadioListTile<UploadMode>(
+                    title: Text("Multiple"),
+                    value: UploadMode.MULTIPLE,
+                    groupValue: uploadMode,
+                    onChanged: onUploadModeChanged),
               ),
-            ),
-          ],
-        )
-      ],
-    );
+            ],
+          )
+        ],
+      );
+
+  Widget get uploadSourceView => Column(
+        children: [
+          Text("File source"),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Expanded(
+                child: RadioListTile<FileSource>(
+                    title: Text("Path"),
+                    value: FileSource.PATH,
+                    groupValue: fileSource,
+                    onChanged: onUploadSourceChanged),
+              ),
+              Expanded(
+                child: RadioListTile<FileSource>(
+                    title: Text("Bytes"),
+                    value: FileSource.BYTES,
+                    groupValue: fileSource,
+                    onChanged: onUploadSourceChanged),
+              ),
+            ],
+          )
+        ],
+      );
+
+  Widget get deleteModeView => Column(
+        children: [
+          Text("Delete mode"),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Expanded(
+                child: RadioListTile<DeleteMode>(
+                    title: Text("Batch"),
+                    value: DeleteMode.BATCH,
+                    groupValue: deleteMode,
+                    onChanged: onDeleteModeChanged),
+              ),
+              Expanded(
+                child: RadioListTile<DeleteMode>(
+                    title: Text("Iterative"),
+                    value: DeleteMode.ITERATIVE,
+                    groupValue: deleteMode,
+                    onChanged: onDeleteModeChanged),
+              ),
+            ],
+          )
+        ],
+      );
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        title: Text(widget.title!),
       ),
       body: Center(
         child: Scrollbar(
@@ -140,8 +167,9 @@ class _MyHomePageState extends State<MyHomePage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
+                SizedBox(height: 16),
                 Text(
-                  'Fotos from file',
+                  'Photos from file',
                 ),
                 SizedBox(
                   height: 16,
@@ -168,7 +196,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           setState(() {});
                         },
                   style: ButtonStyle(
-                    backgroundColor: MaterialStateProperty.resolveWith<Color>(
+                    backgroundColor: MaterialStateProperty.resolveWith<Color?>(
                         (Set<MaterialState> states) {
                       return states.contains(MaterialState.disabled)
                           ? null
@@ -184,7 +212,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   height: 48,
                 ),
                 Text(
-                  'Fotos from cloudinary',
+                  'Photos from cloudinary',
                 ),
                 SizedBox(
                   height: 16,
@@ -201,19 +229,20 @@ class _MyHomePageState extends State<MyHomePage> {
                         .transform()
                         .width(256)
                         .thumb()
-                        .generate();
+                        .generate()!;
                     return Image.network(
                       transformedUrl,
                       width: 100,
                       height: 100,
                     );
-                  })..add(
-                    Visibility(
-                      visible: loading,
-                      child: Center(
-                        child: CircularProgressIndicator(),
-                      )),
-                  ),
+                  })
+                    ..add(
+                      Visibility(
+                          visible: loading,
+                          child: Center(
+                            child: CircularProgressIndicator(),
+                          )),
+                    ),
                 ),
                 SizedBox(
                   height: 32,
@@ -242,7 +271,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           setState(() {});
                         },
                   style: ButtonStyle(
-                    backgroundColor: MaterialStateProperty.resolveWith<Color>(
+                    backgroundColor: MaterialStateProperty.resolveWith<Color?>(
                         (Set<MaterialState> states) {
                       return states.contains(MaterialState.disabled)
                           ? null
@@ -254,11 +283,21 @@ class _MyHomePageState extends State<MyHomePage> {
                     textAlign: TextAlign.center,
                   ),
                 ),
-                SizedBox(height: 32,),
+                SizedBox(
+                  height: 32,
+                ),
                 uploadModeView,
-                SizedBox(height: 16,),
+                SizedBox(
+                  height: 16,
+                ),
                 uploadSourceView,
-                SizedBox(height: 32,),
+                SizedBox(
+                  height: 16,
+                ),
+                deleteModeView,
+                SizedBox(
+                  height: 32,
+                ),
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 16),
                   child: Row(
@@ -275,7 +314,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                 },
                           style: ButtonStyle(
                             backgroundColor:
-                                MaterialStateProperty.resolveWith<Color>(
+                                MaterialStateProperty.resolveWith<Color?>(
                                     (Set<MaterialState> states) {
                               return states.contains(MaterialState.disabled)
                                   ? null
@@ -316,7 +355,7 @@ class _MyHomePageState extends State<MyHomePage> {
                               : () => onClick(deleteUploadedPhotos),
                           style: ButtonStyle(
                             backgroundColor:
-                                MaterialStateProperty.resolveWith<Color>(
+                                MaterialStateProperty.resolveWith<Color?>(
                                     (Set<MaterialState> states) {
                               return states.contains(MaterialState.disabled)
                                   ? null
@@ -345,9 +384,9 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  onNewPhoto(String filePath) {
+  onNewPhoto(String? filePath) {
     if (filePath?.isNotEmpty ?? false) {
-      pathPhotos.add(filePath);
+      pathPhotos.add(filePath!);
       setState(() {});
     }
   }
@@ -356,76 +395,112 @@ class _MyHomePageState extends State<MyHomePage> {
     return await File(path).readAsBytes();
   }
 
-  doSingleUpload() async {
+  Future<void> doSingleUpload() async {
     try {
-      String filePath;
-      List<int> fileBytes;
+      String? filePath;
+      List<int>? fileBytes;
 
-      switch(fileSource) {
+      switch (fileSource) {
         case FileSource.PATH:
           filePath = pathPhotos[0];
           break;
         case FileSource.BYTES:
           fileBytes = await getFileBytes(pathPhotos[0]);
           break;
+        default:
       }
 
       CloudinaryResponse response = await cloudinary.uploadResource(
-        CloudinaryUploadResource(
-          filePath: filePath,
-          fileBytes: fileBytes,
-          resourceType: CloudinaryResourceType.image,
-          folder: cloudinaryCustomFolder,
-          fileName: 'asd@asd.com'
-        )
-      );
+          CloudinaryUploadResource(
+              filePath: filePath,
+              fileBytes: fileBytes,
+              resourceType: CloudinaryResourceType.image,
+              folder: cloudinaryCustomFolder,
+              fileName: 'asd@asd.com'));
 
-      if ((response.isSuccessful ?? false) &&
-          (response.secureUrl?.isNotEmpty ?? false))
-        urlPhotos.add(response.secureUrl);
+      if (response.isSuccessful && response.secureUrl!.isNotEmpty)
+        urlPhotos.add(response.secureUrl!);
       else {
-        errorMessage = response?.error;
+        errorMessage = response.error;
       }
     } catch (e) {
-      errorMessage = e?.toString();
+      errorMessage = e.toString();
       print(e);
     }
   }
 
-  doMultipleUpload() async {
+  Future<void> doMultipleUpload() async {
     try {
-      List<CloudinaryUploadResource> resources = [];
+      List<CloudinaryUploadResource> resources = await Future.wait(
+          pathPhotos.map((path) async => CloudinaryUploadResource(
+                filePath: fileSource == FileSource.PATH ? path : null,
+                fileBytes: fileSource == FileSource.BYTES
+                    ? await getFileBytes(path)
+                    : null,
+                resourceType: CloudinaryResourceType.image,
+                folder: cloudinaryCustomFolder,
+              )));
 
-      resources = await Future.wait(pathPhotos?.map((path) async =>
-          CloudinaryUploadResource(
-            filePath: fileSource == FileSource.PATH ? path : null,
-            fileBytes: fileSource == FileSource.BYTES
-                ? await getFileBytes(path)
-                : null,
-            resourceType: CloudinaryResourceType.image,
-            folder: cloudinaryCustomFolder,
-          )));
-
-      List<CloudinaryResponse> responses = await cloudinary.uploadResources(
-          resources);
+      List<CloudinaryResponse> responses =
+          await (cloudinary.uploadResources(resources));
       responses.forEach((response) {
-        if (response.isSuccessful ?? false)
-          urlPhotos.add(response.secureUrl);
+        if (response.isSuccessful)
+          urlPhotos.add(response.secureUrl!);
         else {
-          errorMessage = response?.error;
+          errorMessage = response.error;
         }
       });
     } catch (e) {
-      errorMessage = e?.toString();
+      errorMessage = e.toString();
       print(e);
     }
   }
 
-  upload() {
+  Future<void> upload() async {
     showLoading();
-    switch(uploadMode) {
+    switch (uploadMode) {
       case UploadMode.MULTIPLE: return doMultipleUpload();
       case UploadMode.SINGLE: return doSingleUpload();
+      default:
+    }
+  }
+
+  Future<void> doBatchDelete() async {
+    CloudinaryResponse response = await cloudinary.deleteFiles(
+        urls: urlPhotos, resourceType: CloudinaryResourceType.image);
+
+    if (response.isSuccessful) {
+      urlPhotos = [];
+      // Check for deleted status...
+      // Map<String, dynamic> deleted = response.deleted;
+    } else {
+      errorMessage = response.error;
+    }
+  }
+
+  Future<void> doIterativeDelete() async {
+    for (int i = 0; i < urlPhotos.length; i++) {
+      String url = urlPhotos[i];
+      final response = await cloudinary.deleteFile(
+        url: url,
+        resourceType: CloudinaryResourceType.image,
+        invalidate: false,
+      );
+      if (response.isSuccessful) {
+        urlPhotos.remove(url);
+        --i;
+      }
+    }
+  }
+
+  Future<void> delete() async {
+    showLoading();
+    switch (deleteMode) {
+      case DeleteMode.BATCH:
+        return doBatchDelete();
+      case DeleteMode.ITERATIVE:
+        return doIterativeDelete();
+      default:
     }
   }
 
@@ -450,37 +525,13 @@ class _MyHomePageState extends State<MyHomePage> {
           await upload();
           break;
         case deleteUploadedPhotos:
-          showLoading();
-          CloudinaryResponse response = await cloudinary.deleteFiles(
-              urls: urlPhotos, resourceType: CloudinaryResourceType.image);
-
-          if (response.isSuccessful ?? false) {
-            urlPhotos = [];
-            //Check for deleted status...
-//            Map<String, dynamic> deleted = response.deleted;
-          } else {
-            errorMessage = response?.error;
-          }
-
-          //This is another approach...
-//          for(int i = 0; i < urlPhotos.length; i++){
-//            String url = urlPhotos[i];
-//            final response = await cloudinary.deleteFile(
-//              url: url,
-//              resourceType: CloudinaryResourceType.image,
-//              invalidate: false,
-//            );
-//            if(response.isSuccessful ?? false){
-//              urlPhotos.remove(url);
-//              --i;
-//            }
-//          }
+          await delete();
           break;
       }
     } catch (e) {
       print(e);
       loading = false;
-      setState(() => errorMessage = e?.toString());
+      setState(() => errorMessage = e.toString());
     } finally {
       if (loading) hideLoading();
     }
@@ -490,14 +541,14 @@ class _MyHomePageState extends State<MyHomePage> {
 
   hideLoading() => setState(() => loading = false);
 
-  Future<String> handleImagePickerResponse(Future getImageCall) async {
-    Map<String, dynamic> resource = await getImageCall;
-    if (resource?.isEmpty ?? true) return null;
+  Future<String?> handleImagePickerResponse(Future getImageCall) async {
+    Map<String, dynamic> resource =
+        await (getImageCall as FutureOr<Map<String, dynamic>>);
+    if (resource.isEmpty) return null;
     switch (resource['status']) {
       case 'SUCCESS':
         Navigator.pop(context);
         return resource['data'].path;
-        break;
       default:
         ImageUtils.showPermissionExplanation(
             context: context, message: resource['message']);
