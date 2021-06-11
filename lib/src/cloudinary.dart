@@ -150,7 +150,7 @@ class Cloudinary {
       bool? invalidate,
       Map<String, dynamic>? optParams}) {
     if (publicId == null)
-      publicId = (cloudinaryImage ?? CloudinaryImage(url!)).publicId;
+      publicId = (cloudinaryImage ?? CloudinaryImage(url ?? '')).publicId;
     return _client.destroy(publicId,
         resourceType: resourceType,
         invalidate: invalidate,

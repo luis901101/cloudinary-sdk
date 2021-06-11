@@ -1,3 +1,7 @@
+## 3.0.1+7
+### Fixed
+- Fixed bug in null-check operator on deleteFile function
+
 ## 3.0.0+6 (Breaking Change)
 ### Added
 - Support for null-safety
