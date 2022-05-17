@@ -27,15 +27,14 @@ class CloudinaryUploadResource {
 
   const CloudinaryUploadResource({
     this.filePath,
-      this.fileBytes,
-      this.uploadPreset,
-      this.fileName,
-      this.publicId,
-      this.folder,
-      this.resourceType,
-      this.optParams,
+    this.fileBytes,
+    this.uploadPreset,
+    this.fileName,
+    this.publicId,
+    this.folder,
+    this.resourceType,
+    this.optParams,
     this.progressCallback,
-  })
-      : assert(filePath != null || fileBytes != null,
+  }) : assert(filePath != null || fileBytes != null,
             'One of filePath or fileBytes must not be null');
 }

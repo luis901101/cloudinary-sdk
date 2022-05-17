@@ -85,11 +85,11 @@ class ImageUtils {
       switch (e.code) {
         case cameraAccessDenied:
           resource['message'] =
-          'Camera permission denied. You have to grant permission from system settings';
+              'Camera permission denied. You have to grant permission from system settings';
           break;
         case galleryAccessDenied:
           resource['message'] =
-          'Gellery permission denied. You have to grant permission from system settings';
+              'Gellery permission denied. You have to grant permission from system settings';
           break;
       }
     } catch (e) {
@@ -104,11 +104,11 @@ class ImageUtils {
   }
 
   static Future<Map<String, dynamic>> pickImageFromGallery(
-      {bool multiple = true}) async =>
+          {bool multiple = true}) async =>
       await _pickImageFrom(source: ImageSource.gallery, multiple: multiple);
 
   static Future<Map<String, dynamic>> takePhoto(
-      {CameraDevice cameraDevice = CameraDevice.rear}) async =>
+          {CameraDevice cameraDevice = CameraDevice.rear}) async =>
       await _pickImageFrom(
           source: ImageSource.camera, cameraDevice: cameraDevice);
 
@@ -117,13 +117,13 @@ class ImageUtils {
     showDialog(
         context: context,
         builder: (innerContext) => AlertDialog(
-          title: const Text('Warning'),
-          content: Text(message!),
-          actions: [
-            ElevatedButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('OK'))
-          ],
-        ));
+              title: const Text('Warning'),
+              content: Text(message!),
+              actions: [
+                ElevatedButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('OK'))
+              ],
+            ));
   }
 }

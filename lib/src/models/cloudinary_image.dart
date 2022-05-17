@@ -1,6 +1,5 @@
 import 'package:cloudinary_sdk/cloudinary_sdk.dart';
 
-
 class CloudinaryImage {
   static const String _baseUrl =
       'https://res.cloudinary.com/:cloud/image/upload/';
@@ -15,12 +14,13 @@ class CloudinaryImage {
 
     final resource = this.url.split('/upload/');
     // assert(resource.length == 2, 'Invalid cloudinary url');
-    if(resource.length != 2) throw InvalidCloudinaryUrlException();
+    if (resource.length != 2) throw InvalidCloudinaryUrlException();
     pathStart = resource[0] + '/upload/';
     final String pathEnd = resource[1];
     String tempPublicId = Uri.decodeFull(pathEnd);
     int lastDotIndex = tempPublicId.lastIndexOf('.');
-    if (lastDotIndex != -1) tempPublicId = tempPublicId.substring(0, lastDotIndex);
+    if (lastDotIndex != -1)
+      tempPublicId = tempPublicId.substring(0, lastDotIndex);
     publicId = tempPublicId;
   }
 

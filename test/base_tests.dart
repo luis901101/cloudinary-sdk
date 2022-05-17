@@ -26,17 +26,19 @@ import 'package:cloudinary_sdk/cloudinary_sdk.dart';
 final String? apiKey = Platform.environment['CLOUDINARY_API_KEY'];
 final String? apiSecret = Platform.environment['CLOUDINARY_API_SECRET'];
 final String? cloudName = Platform.environment['CLOUDINARY_CLOUD_NAME'];
-final String? folder = Platform.environment['CLOUDINARY_FOLDER'] ?? 'test/my-folder';
+final String? folder =
+    Platform.environment['CLOUDINARY_FOLDER'] ?? 'test/my-folder';
 final String? uploadPreset = Platform.environment['CLOUDINARY_UPLOAD_PRESET'];
 
-final File imageFile = File(Platform.environment['CLOUDINARY_IMAGE_FILE'] ?? ''),
+final File imageFile =
+        File(Platform.environment['CLOUDINARY_IMAGE_FILE'] ?? ''),
     imageFile1 = File(Platform.environment['CLOUDINARY_IMAGE_FILE_1'] ?? ''),
     imageFile2 = File(Platform.environment['CLOUDINARY_IMAGE_FILE_2'] ?? '');
 final String imageUrl = Platform.environment['CLOUDINARY_IMAGE_URL'] ?? '';
 Set<String> cacheUrls = {};
 
 void addSecureUrl(String? id) {
-  if(id != null) cacheUrls.add(id);
+  if (id != null) cacheUrls.add(id);
 }
 
 Cloudinary cloudinary = Cloudinary.basic(cloudName: cloudName ?? '');

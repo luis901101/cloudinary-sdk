@@ -7,7 +7,6 @@ import 'package:cloudinary_sdk_example/image_utils.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:dio/dio.dart';
 
-
 /// Make sure to put environment variables in your
 /// flutter run command or in your Additional run args in your selected
 /// configuration.
@@ -23,14 +22,21 @@ import 'package:dio/dio.dart';
 /// --dart-define=CLOUDINARY_FOLDER=xxxxxxxxxxxxxxxxxxxxxxxxxxx
 /// --dart-define=CLOUDINARY_UPLOAD_PRESET=xxxxxxxxxxxxxxxxxxxxxxxxxxx
 ///
-const String apiUrl = String.fromEnvironment('CLOUDINARY_API_URL', defaultValue: 'https://api.cloudinary.com/v1_1');
-const String apiKey = String.fromEnvironment('CLOUDINARY_API_KEY', defaultValue: '');
-const String apiSecret = String.fromEnvironment('CLOUDINARY_API_SECRET', defaultValue: '');
-const String cloudName = String.fromEnvironment('CLOUDINARY_CLOUD_NAME', defaultValue: '');
-const String folder = String.fromEnvironment('CLOUDINARY_FOLDER', defaultValue: 'test/my-folder');
-const String uploadPreset = String.fromEnvironment('CLOUDINARY_UPLOAD_PRESET', defaultValue: '');
+const String apiUrl = String.fromEnvironment('CLOUDINARY_API_URL',
+    defaultValue: 'https://api.cloudinary.com/v1_1');
+const String apiKey =
+    String.fromEnvironment('CLOUDINARY_API_KEY', defaultValue: '');
+const String apiSecret =
+    String.fromEnvironment('CLOUDINARY_API_SECRET', defaultValue: '');
+const String cloudName =
+    String.fromEnvironment('CLOUDINARY_CLOUD_NAME', defaultValue: '');
+const String folder =
+    String.fromEnvironment('CLOUDINARY_FOLDER', defaultValue: 'test/my-folder');
+const String uploadPreset =
+    String.fromEnvironment('CLOUDINARY_UPLOAD_PRESET', defaultValue: '');
 
-final cloudinary = Cloudinary.full(apiUrl: apiUrl, apiKey: apiKey, apiSecret: apiSecret, cloudName: cloudName);
+final cloudinary = Cloudinary.full(
+    apiUrl: apiUrl, apiKey: apiKey, apiSecret: apiSecret, cloudName: cloudName);
 
 void main() {
   runApp(const MyApp());
@@ -81,10 +87,12 @@ class DataTransmitNotifier {
   late final ProgressCallback? progressCallback;
   final notifier = ValueNotifier<double>(0);
 
-  DataTransmitNotifier({required this.path, ProgressCallback? progressCallback}) {
-    this.progressCallback = progressCallback ?? (count, total) {
-      notifier.value = count.toDouble() / total.toDouble();
-    };
+  DataTransmitNotifier(
+      {required this.path, ProgressCallback? progressCallback}) {
+    this.progressCallback = progressCallback ??
+        (count, total) {
+          notifier.value = count.toDouble() / total.toDouble();
+        };
   }
 }
 
@@ -106,12 +114,14 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
   }
 
-  void onUploadModeChanged(UploadMode? value) => setState(() => uploadMode = value!);
+  void onUploadModeChanged(UploadMode? value) =>
+      setState(() => uploadMode = value!);
 
   void onUploadSourceChanged(FileSource? value) =>
       setState(() => fileSource = value!);
 
-  void onDeleteModeChanged(DeleteMode? value) => setState(() => deleteMode = value!);
+  void onDeleteModeChanged(DeleteMode? value) =>
+      setState(() => deleteMode = value!);
 
   Widget get uploadModeView => Column(
         children: [
@@ -232,7 +242,11 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         SizedBox(
           width: 100,
-          child: Text(resource.originalFilename ?? resource.publicId ?? resource.secureUrl ?? 'Unknown',
+          child: Text(
+            resource.originalFilename ??
+                resource.publicId ??
+                resource.secureUrl ??
+                'Unknown',
             textAlign: TextAlign.center,
             overflow: TextOverflow.ellipsis,
             maxLines: 1,
@@ -377,22 +391,22 @@ class _MyHomePageState extends State<MyHomePage> {
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed: loading ||
-                          (dataImages.isEmpty &&
-                              cloudinaryResponses.isEmpty)
+                              (dataImages.isEmpty &&
+                                  cloudinaryResponses.isEmpty)
                           ? null
                           : () {
-                        dataImages = [];
-                        cloudinaryResponses = [];
-                        setState(() {});
-                      },
+                              dataImages = [];
+                              cloudinaryResponses = [];
+                              setState(() {});
+                            },
                       style: ButtonStyle(
                         backgroundColor:
-                        MaterialStateProperty.resolveWith<Color?>(
+                            MaterialStateProperty.resolveWith<Color?>(
                                 (Set<MaterialState> states) {
-                              return states.contains(MaterialState.disabled)
-                                  ? null
-                                  : Colors.blue;
-                            }),
+                          return states.contains(MaterialState.disabled)
+                              ? null
+                              : Colors.blue;
+                        }),
                       ),
                       child: const Text(
                         'Clear all',
@@ -410,20 +424,22 @@ class _MyHomePageState extends State<MyHomePage> {
                           ? null
                           : () => onClick(doSignedUpload),
                       style: ButtonStyle(
-                          padding: MaterialStateProperty.all(const EdgeInsets.all(8))
-                      ),
+                          padding: MaterialStateProperty.all(
+                              const EdgeInsets.all(8))),
                       child: Column(
                         children: const [
                           Text(
                             'Signed upload',
                             textAlign: TextAlign.center,
-                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                            style: TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.bold),
                           ),
                           SizedBox(height: 4),
                           Text(
                             'Signed uploads are recommended only for server side, because it requires an api key and api secret to be able to upload images to Cloudinary. For uploading images from client side like mobile or web app consider "Unsigned upload"',
                             textAlign: TextAlign.center,
-                            style: TextStyle(fontSize: 12, fontWeight: FontWeight.normal),
+                            style: TextStyle(
+                                fontSize: 12, fontWeight: FontWeight.normal),
                           ),
                         ],
                       ),
@@ -440,27 +456,30 @@ class _MyHomePageState extends State<MyHomePage> {
                           ? null
                           : () => onClick(doUnsignedUpload),
                       style: ButtonStyle(
-                        padding: MaterialStateProperty.all(const EdgeInsets.all(8)),
+                        padding:
+                            MaterialStateProperty.all(const EdgeInsets.all(8)),
                         backgroundColor:
-                        MaterialStateProperty.resolveWith<Color?>(
+                            MaterialStateProperty.resolveWith<Color?>(
                                 (Set<MaterialState> states) {
-                              return states.contains(MaterialState.disabled)
-                                  ? null
-                                  : Colors.deepOrange;
-                            }),
+                          return states.contains(MaterialState.disabled)
+                              ? null
+                              : Colors.deepOrange;
+                        }),
                       ),
                       child: Column(
                         children: const [
                           Text(
                             'Unsigned upload',
                             textAlign: TextAlign.center,
-                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                            style: TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.bold),
                           ),
                           SizedBox(height: 4),
                           Text(
                             'Unsigned uploads are recommended from client side like mobile or web app. This upload doesn\'t require an api key or api secret to upload to Cloudinary.',
                             textAlign: TextAlign.center,
-                            style: TextStyle(fontSize: 12, fontWeight: FontWeight.normal),
+                            style: TextStyle(
+                                fontSize: 12, fontWeight: FontWeight.normal),
                           ),
                         ],
                       ),
@@ -478,12 +497,12 @@ class _MyHomePageState extends State<MyHomePage> {
                               : () => onClick(deleteUploadedData),
                           style: ButtonStyle(
                             backgroundColor:
-                            MaterialStateProperty.resolveWith<Color?>(
+                                MaterialStateProperty.resolveWith<Color?>(
                                     (Set<MaterialState> states) {
-                                  return states.contains(MaterialState.disabled)
-                                      ? null
-                                      : Colors.red.shade600;
-                                }),
+                              return states.contains(MaterialState.disabled)
+                                  ? null
+                                  : Colors.red.shade600;
+                            }),
                           ),
                           child: const Text(
                             'Delete uploaded images',
@@ -494,7 +513,9 @@ class _MyHomePageState extends State<MyHomePage> {
                     ],
                   ),
                 ),
-                SizedBox(height: MediaQuery.of(context).padding.bottom,),
+                SizedBox(
+                  height: MediaQuery.of(context).padding.bottom,
+                ),
               ],
             ),
           ),
@@ -541,9 +562,9 @@ class _MyHomePageState extends State<MyHomePage> {
         progressCallback: data.progressCallback,
         uploadPreset: uploadPreset,
       );
-      CloudinaryResponse response = signed ?
-        await cloudinary.uploadResource(resource) :
-        await cloudinary.unsignedUploadResource(resource);
+      CloudinaryResponse response = signed
+          ? await cloudinary.uploadResource(resource)
+          : await cloudinary.unsignedUploadResource(resource);
 
       if (response.isSuccessful && response.secureUrl!.isNotEmpty) {
         cloudinaryResponses.add(response);
@@ -560,19 +581,19 @@ class _MyHomePageState extends State<MyHomePage> {
     try {
       List<CloudinaryUploadResource> resources = await Future.wait(
           dataImages.map((data) async => CloudinaryUploadResource(
-            filePath: fileSource == FileSource.path ? data.path : null,
-            fileBytes: fileSource == FileSource.bytes
-                ? await getFileBytes(data.path)
-                : null,
-            resourceType: CloudinaryResourceType.image,
-            folder: folder,
-            progressCallback: data.progressCallback,
-            uploadPreset: uploadPreset,
-          )));
+                filePath: fileSource == FileSource.path ? data.path : null,
+                fileBytes: fileSource == FileSource.bytes
+                    ? await getFileBytes(data.path)
+                    : null,
+                resourceType: CloudinaryResourceType.image,
+                folder: folder,
+                progressCallback: data.progressCallback,
+                uploadPreset: uploadPreset,
+              )));
 
-      List<CloudinaryResponse> responses = signed ?
-        await cloudinary.uploadResources(resources) :
-        await cloudinary.unsignedUploadResources(resources);
+      List<CloudinaryResponse> responses = signed
+          ? await cloudinary.uploadResources(resources)
+          : await cloudinary.unsignedUploadResources(resources);
       for (var response in responses) {
         if (response.isSuccessful) {
           cloudinaryResponses.add(response);
@@ -589,17 +610,18 @@ class _MyHomePageState extends State<MyHomePage> {
   Future<void> upload({bool signed = true}) async {
     showLoading();
     switch (uploadMode) {
-      case UploadMode.multiple: return doMultipleUpload(signed: signed);
-      case UploadMode.single: return doSingleUpload(signed: signed);
+      case UploadMode.multiple:
+        return doMultipleUpload(signed: signed);
+      case UploadMode.single:
+        return doSingleUpload(signed: signed);
       default:
     }
   }
 
   Future<void> doBatchDelete() async {
     CloudinaryResponse response = await cloudinary.deleteResources(
-      urls: cloudinaryResponses.map((e) => e.secureUrl!).toList(),
-      resourceType: CloudinaryResourceType.image
-    );
+        urls: cloudinaryResponses.map((e) => e.secureUrl!).toList(),
+        resourceType: CloudinaryResourceType.image);
 
     if (response.isSuccessful) {
       cloudinaryResponses = [];
@@ -678,7 +700,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<List<String>> handleImagePickerResponse(Future getImageCall) async {
     Map<String, dynamic> resource =
-    await (getImageCall as FutureOr<Map<String, dynamic>>);
+        await (getImageCall as FutureOr<Map<String, dynamic>>);
     if (resource.isEmpty) return [];
     switch (resource['status']) {
       case 'SUCCESS':

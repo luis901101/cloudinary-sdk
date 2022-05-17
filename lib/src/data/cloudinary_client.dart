@@ -5,7 +5,6 @@ import 'package:dio/dio.dart';
 import 'cloudinary_api.dart';
 
 class CloudinaryClient extends CloudinaryApi {
-
   static const _signedRequestAssertMessage = 'This endpoint requires an '
       'authorized request, check the Cloudinary constructor you are using and '
       'make sure you are using a valid `apiKey`, `apiSecret` and `cloudName`.';
@@ -79,7 +78,7 @@ class CloudinaryClient extends CloudinaryApi {
     CloudinaryResponse cloudinaryResponse;
     try {
       response = await post(
-        cloudName+ '/${resourceType.name}/upload',
+        cloudName + '/${resourceType.name}/upload',
         data: formData,
         onSendProgress: progressCallback,
       );
@@ -130,15 +129,18 @@ class CloudinaryClient extends CloudinaryApi {
 
     final params = <String, dynamic>{
       'upload_preset': uploadPreset,
-      if (publicId != null || fileName != null) 'public_id': publicId ?? fileName,
+      if (publicId != null || fileName != null)
+        'public_id': publicId ?? fileName,
       if (folder != null) 'folder': folder,
+
       /// Setting the optParams... this would override the public_id and folder if specified by user.
       if (optParams?.isNotEmpty ?? false) ...optParams!,
     };
 
     params['file'] = fileBytes != null
         ? MultipartFile.fromBytes(fileBytes,
-            filename: fileName ?? DateTime.now().millisecondsSinceEpoch.toString())
+            filename:
+                fileName ?? DateTime.now().millisecondsSinceEpoch.toString())
         : await MultipartFile.fromFile(filePath!, filename: fileName);
 
     FormData formData = FormData.fromMap(params);
@@ -148,7 +150,7 @@ class CloudinaryClient extends CloudinaryApi {
     CloudinaryResponse cloudinaryResponse;
     try {
       response = await post(
-        cloudName+ '/${resourceType.name}/upload',
+        cloudName + '/${resourceType.name}/upload',
         data: formData,
         onSendProgress: progressCallback,
       );
@@ -198,7 +200,7 @@ class CloudinaryClient extends CloudinaryApi {
     CloudinaryResponse cloudinaryResponse;
     int? statusCode;
     try {
-      response = await post(cloudName+ '/${resourceType.name}/destroy',
+      response = await post(cloudName + '/${resourceType.name}/destroy',
           data: formData);
       statusCode = response.statusCode;
       cloudinaryResponse = CloudinaryResponse.fromJsonMap(response.data);
@@ -265,8 +267,9 @@ class CloudinaryClient extends CloudinaryApi {
     int? statusCode;
     try {
       response = await delete(
-          cloudName+ '/resources/${resourceType.name}/${deliveryType.name}',
-          data: formData,);
+        cloudName + '/resources/${resourceType.name}/${deliveryType.name}',
+        data: formData,
+      );
       statusCode = response.statusCode;
       cloudinaryResponse = CloudinaryResponse.fromJsonMap(response.data);
     } catch (error, stacktrace) {

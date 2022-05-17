@@ -10,8 +10,13 @@ class CloudinaryApi {
 
   CloudinaryApi({String? url, String? apiKey, String? apiSecret})
       : apiUrl = (url?.isEmpty ?? true) ? url = defaultUrl : url!,
-        _dio = Dio(BaseOptions(baseUrl: '$url/',)),
-        _deleteDio = Dio(BaseOptions(baseUrl: '$url/'.replaceFirst('https://', 'https://$apiKey:$apiSecret@'),));
+        _dio = Dio(BaseOptions(
+          baseUrl: '$url/',
+        )),
+        _deleteDio = Dio(BaseOptions(
+          baseUrl:
+              '$url/'.replaceFirst('https://', 'https://$apiKey:$apiSecret@'),
+        ));
 
   /// To do post requests to Cloudinary API
   Future<Response<T>> post<T>(

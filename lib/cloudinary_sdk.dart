@@ -8,4 +8,3 @@ export 'package:cloudinary_sdk/src/models/cloudinary_resource_type.dart';
 export 'package:cloudinary_sdk/src/models/cloudinary_response.dart';
 export 'package:cloudinary_sdk/src/models/cloudinary_transformation.dart';
 export 'package:cloudinary_sdk/src/exceptions/invalid_cloudinary_url_exception.dart';
-
