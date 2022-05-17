@@ -399,15 +399,6 @@ class _MyHomePageState extends State<MyHomePage> {
                               cloudinaryResponses = [];
                               setState(() {});
                             },
-                      style: ButtonStyle(
-                        backgroundColor:
-                            MaterialStateProperty.resolveWith<Color?>(
-                                (Set<MaterialState> states) {
-                          return states.contains(MaterialState.disabled)
-                              ? null
-                              : Colors.blue;
-                        }),
-                      ),
                       child: const Text(
                         'Clear all',
                         textAlign: TextAlign.center,
@@ -424,8 +415,16 @@ class _MyHomePageState extends State<MyHomePage> {
                           ? null
                           : () => onClick(doSignedUpload),
                       style: ButtonStyle(
-                          padding: MaterialStateProperty.all(
-                              const EdgeInsets.all(8))),
+                        padding:
+                        MaterialStateProperty.all(const EdgeInsets.all(8)),
+                        backgroundColor:
+                        MaterialStateProperty.resolveWith<Color?>(
+                                (Set<MaterialState> states) {
+                              return states.contains(MaterialState.disabled)
+                                  ? null
+                                  : Colors.orange;
+                            }),
+                      ),
                       child: Column(
                         children: const [
                           Text(
