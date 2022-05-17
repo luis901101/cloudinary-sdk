@@ -19,8 +19,9 @@ class CloudinaryImage {
     final String pathEnd = resource[1];
     String tempPublicId = Uri.decodeFull(pathEnd);
     int lastDotIndex = tempPublicId.lastIndexOf('.');
-    if (lastDotIndex != -1)
+    if (lastDotIndex != -1) {
       tempPublicId = tempPublicId.substring(0, lastDotIndex);
+    }
     publicId = tempPublicId;
   }
 
