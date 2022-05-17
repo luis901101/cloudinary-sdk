@@ -3,8 +3,8 @@ import 'package:cloudinary_sdk/src/models/cloudinary_image.dart';
 class CloudinaryTransformation {
   final String _path;
   final String _publicId;
-  Map<String, String> _params = {};
-  List<Map<String, String>> _chains = [];
+  final _params = <String, String>{};
+  final _chains = <Map<String, String>>[];
 
   CloudinaryTransformation(this._path, this._publicId);
 
@@ -83,10 +83,10 @@ class CloudinaryTransformation {
 
     String url = _path;
 
-    _chains.forEach((element) {
+    for (var element in _chains) {
       url += _values(element);
       url += '/';
-    });
+    }
 
     url += _publicId;
 
@@ -106,9 +106,9 @@ class CloudinaryTransformation {
 
     List<String> values = [];
 
-    keys.forEach((key) {
+    for (var key in keys) {
       values.add('${key}_${items[key]}');
-    });
+    }
 
     return values.join(',');
   }

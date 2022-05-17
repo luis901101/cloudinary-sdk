@@ -5,16 +5,23 @@ import 'package:dio/dio.dart';
 import 'cloudinary_api.dart';
 
 class CloudinaryClient extends CloudinaryApi {
-  String? _cloudName;
-  String? _apiKey;
-  String? _apiSecret;
 
-  CloudinaryClient(String? apiKey, String? apiSecret, String? cloudName)
-      : super(apiKey: apiKey, apiSecret: apiSecret) {
-    this._apiKey = apiKey;
-    this._apiSecret = apiSecret;
-    this._cloudName = cloudName;
-  }
+  static const _signedRequestAssertMessage = 'This endpoint requires an '
+      'authorized request, check the Cloudinary constructor you are using and '
+      'make sure you are using a valid `apiKey`, `apiSecret` and `cloudName`.';
+
+  final String apiKey;
+  final String apiSecret;
+  final String cloudName;
+
+  CloudinaryClient({
+    required this.apiKey,
+    required this.apiSecret,
+    required this.cloudName,
+  }) : super(apiKey: apiKey, apiSecret: apiSecret);
+
+
+  bool get isBasic => apiKey.isEmpty || apiSecret.isEmpty || cloudName.isEmpty;
 
   /// Uploads a file of [resourceType] with [fileName] to a [folder]
   /// in your specified [cloudName]
@@ -28,55 +35,62 @@ class CloudinaryClient extends CloudinaryApi {
   ///
   /// Response:
   /// Check all the atributes in the CloudinaryResponse to get the information you need... including secureUrl, publicId, etc.
-  Future<CloudinaryResponse> upload(
-      {String? filePath,
-      List<int>? fileBytes,
-      String? fileName,
-      String? folder,
-      CloudinaryResourceType? resourceType,
-      Map<String, dynamic>? optParams}) async {
-    if (filePath == null && fileBytes == null)
-      throw Exception("One of filePath or fileBytes must not be null");
+  ///
+  /// Official documentation: https://cloudinary.com/documentation/upload_images
+  Future<CloudinaryResponse> upload({
+    String? filePath,
+    List<int>? fileBytes,
+    String? fileName,
+    String? folder,
+    CloudinaryResourceType? resourceType,
+    Map<String, dynamic>? optParams,
+    ProgressCallback? progressCallback,
+  }) async {
+    assert(!isBasic, _signedRequestAssertMessage);
 
-    int timeStamp = new DateTime.now().millisecondsSinceEpoch;
+    if (filePath == null && fileBytes == null) {
+      throw Exception('One of filePath or fileBytes must not be null');
+    }
+
+    int timeStamp = DateTime.now().millisecondsSinceEpoch;
     resourceType ??= CloudinaryResourceType.auto;
-
-    if (_apiSecret == null || _apiKey == null)
-      throw Exception("apiKey and apiSecret must not be null");
 
     Map<String, dynamic> params = {};
 
-    if (fileName != null) params["public_id"] = fileName;
-    if (folder != null) params["folder"] = folder;
+    if (fileName != null) params['public_id'] = fileName;
+    if (folder != null) params['folder'] = folder;
 
-    //Setting the optParams... this would override the public_id and folder if specified by user.
+    /// Setting the optParams... this would override the public_id and folder if specified by user.
     if (optParams != null) params.addAll(optParams);
-    params["api_key"] = _apiKey;
-    params["file"] = fileBytes != null
-        ? await MultipartFile.fromBytes(fileBytes,
+    params['api_key'] = apiKey;
+    params['file'] = fileBytes != null
+        ? MultipartFile.fromBytes(fileBytes,
             filename:
                 fileName ?? DateTime.now().millisecondsSinceEpoch.toString())
         : await MultipartFile.fromFile(filePath!, filename: fileName);
-    params["timestamp"] = timeStamp;
-    params["signature"] =
-        getSignature(secret: _apiSecret, timeStamp: timeStamp, params: params);
+    params['timestamp'] = timeStamp;
+    params['signature'] =
+        getSignature(secret: apiSecret, timeStamp: timeStamp, params: params);
 
-    FormData formData = new FormData.fromMap(params);
+    FormData formData = FormData.fromMap(params);
 
     Response response;
     int? statusCode;
     CloudinaryResponse cloudinaryResponse;
     try {
-      response = await post(_cloudName! + "/${resourceType.name}/upload",
-          data: formData);
+      response = await post(
+        cloudName+ '/${resourceType.name}/upload',
+        data: formData,
+        onSendProgress: progressCallback,
+      );
       statusCode = response.statusCode;
       cloudinaryResponse = CloudinaryResponse.fromJsonMap(response.data);
     } catch (error, stacktrace) {
-      print("Exception occurred: $error stackTrace: $stacktrace");
+      print('Exception occurred: $error stackTrace: $stacktrace');
       if (error is DioError) statusCode = error.response?.statusCode;
-      cloudinaryResponse = CloudinaryResponse.fromError("$error");
+      cloudinaryResponse = CloudinaryResponse.fromError('$error');
     }
-    cloudinaryResponse..statusCode = statusCode;
+    cloudinaryResponse.statusCode = statusCode;
     return cloudinaryResponse;
   }
 
@@ -94,38 +108,37 @@ class CloudinaryClient extends CloudinaryApi {
       {CloudinaryResourceType? resourceType,
       bool? invalidate,
       Map<String, dynamic>? optParams}) async {
-    int timeStamp = new DateTime.now().millisecondsSinceEpoch;
+    assert(!isBasic, _signedRequestAssertMessage);
+
+    int timeStamp = DateTime.now().millisecondsSinceEpoch;
     resourceType ??= CloudinaryResourceType.image;
 
-    if (_apiSecret == null || _apiKey == null)
-      throw Exception("publicId, apiKey and apiSecret must not be null");
-
-    Map<String, dynamic> params = new Map();
+    final params = <String, dynamic>{};
 
     if (optParams != null) params.addAll(optParams);
-    if (invalidate != null) params["invalidate"] = invalidate;
-    params["public_id"] = publicId;
-    params["api_key"] = _apiKey;
-    params["timestamp"] = timeStamp;
-    params["signature"] =
-        getSignature(secret: _apiSecret, timeStamp: timeStamp, params: params);
+    if (invalidate != null) params['invalidate'] = invalidate;
+    params['public_id'] = publicId;
+    params['api_key'] = apiKey;
+    params['timestamp'] = timeStamp;
+    params['signature'] =
+        getSignature(secret: apiSecret, timeStamp: timeStamp, params: params);
 
-    FormData formData = new FormData.fromMap(params);
+    FormData formData = FormData.fromMap(params);
 
     Response response;
     CloudinaryResponse cloudinaryResponse;
     int? statusCode;
     try {
-      response = await post(_cloudName! + "/${resourceType.name}/destroy",
+      response = await post(cloudName+ '/${resourceType.name}/destroy',
           data: formData);
       statusCode = response.statusCode;
       cloudinaryResponse = CloudinaryResponse.fromJsonMap(response.data);
     } catch (error, stacktrace) {
-      print("Exception occured: $error stackTrace: $stacktrace");
+      print('Exception occured: $error stackTrace: $stacktrace');
       if (error is DioError) statusCode = error.response?.statusCode;
-      cloudinaryResponse = CloudinaryResponse.fromError("$error");
+      cloudinaryResponse = CloudinaryResponse.fromError('$error');
     }
-    cloudinaryResponse..statusCode = statusCode;
+    cloudinaryResponse.statusCode = statusCode;
     return cloudinaryResponse;
   }
 
@@ -153,45 +166,46 @@ class CloudinaryClient extends CloudinaryApi {
       CloudinaryDeliveryType? deliveryType,
       bool? invalidate,
       Map<String, dynamic>? optParams}) async {
-    int timeStamp = new DateTime.now().millisecondsSinceEpoch;
+    assert(!isBasic, _signedRequestAssertMessage);
+
+    int timeStamp = DateTime.now().millisecondsSinceEpoch;
     resourceType ??= CloudinaryResourceType.image;
     deliveryType ??= CloudinaryDeliveryType.upload;
 
-    if (_apiSecret == null || _apiKey == null)
-      throw Exception("publicId, apiKey and apiSecret must not be null");
-
-    Map<String, dynamic> params = new Map();
+    final params = <String, dynamic>{};
 
     if (optParams != null) params.addAll(optParams);
-    if (invalidate != null) params["invalidate"] = invalidate;
-    if (publicIds != null)
-      params["public_ids"] = publicIds;
-    else if (prefix != null)
-      params["prefix"] = prefix;
-    else if (all != null) params["all"] = all;
+    if (invalidate != null) params['invalidate'] = invalidate;
+    if (publicIds != null) {
+      params['public_ids'] = publicIds;
+    } else if (prefix != null) {
+      params['prefix'] = prefix;
+    } else if (all != null) {
+      params['all'] = all;
+    }
 
-    params["api_key"] = _apiKey;
-    params["timestamp"] = timeStamp;
-    params["signature"] =
-        getSignature(secret: _apiSecret, timeStamp: timeStamp, params: params);
+    params['api_key'] = apiKey;
+    params['timestamp'] = timeStamp;
+    params['signature'] =
+        getSignature(secret: apiSecret, timeStamp: timeStamp, params: params);
 
-    FormData formData = new FormData.fromMap(params, ListFormat.multiCompatible);
+    FormData formData = FormData.fromMap(params, ListFormat.multiCompatible);
 
     Response response;
     CloudinaryResponse cloudinaryResponse;
     int? statusCode;
     try {
       response = await delete(
-          _cloudName! + "/resources/${resourceType.name}/${deliveryType.name}",
+          cloudName+ '/resources/${resourceType.name}/${deliveryType.name}',
           data: formData,);
       statusCode = response.statusCode;
       cloudinaryResponse = CloudinaryResponse.fromJsonMap(response.data);
     } catch (error, stacktrace) {
-      print("Exception occured: $error stackTrace: $stacktrace");
+      print('Exception occured: $error stackTrace: $stacktrace');
       if (error is DioError) statusCode = error.response?.statusCode;
-      cloudinaryResponse = CloudinaryResponse.fromError("$error");
+      cloudinaryResponse = CloudinaryResponse.fromError('$error');
     }
-    cloudinaryResponse..statusCode = statusCode;
+    cloudinaryResponse.statusCode = statusCode;
     return cloudinaryResponse;
   }
 }

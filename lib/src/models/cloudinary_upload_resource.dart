@@ -1,4 +1,5 @@
 import 'package:cloudinary_sdk/cloudinary_sdk.dart';
+import 'package:dio/dio.dart';
 
 /// An abstraction object to upload a [resourceType] with [fileName] to a
 /// [folder] in your specified [cloudName]
@@ -8,6 +9,7 @@ import 'package:cloudinary_sdk/cloudinary_sdk.dart';
 /// [resourceType] defaults to [CloudinaryResourceType.auto]
 /// [fileName] is not mandatory, if not specified then a random name will be used
 /// [optParams] a Map of optional parameters as defined in https://cloudinary.com/documentation/image_upload_api_reference
+/// [progressCallback] a callback to get the progress of the uploading data
 ///
 /// Note: one of [filePath] or [fileBytes] must be set
 class CloudinaryUploadResource {
@@ -17,14 +19,17 @@ class CloudinaryUploadResource {
   final String? folder;
   final CloudinaryResourceType? resourceType;
   final Map<String, dynamic>? optParams;
+  final ProgressCallback? progressCallback;
 
-  CloudinaryUploadResource(
-      {this.filePath,
+  const CloudinaryUploadResource({
+    this.filePath,
       this.fileBytes,
       this.fileName,
       this.folder,
       this.resourceType,
-      this.optParams})
+      this.optParams,
+    this.progressCallback,
+  })
       : assert(filePath != null || fileBytes != null,
-            "One of filePath or fileBytes must not be null");
+            'One of filePath or fileBytes must not be null');
 }

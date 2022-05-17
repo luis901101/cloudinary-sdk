@@ -4,19 +4,37 @@ import 'package:cloudinary_sdk/src/models/cloudinary_resource_type.dart';
 import 'package:cloudinary_sdk/src/data/cloudinary_client.dart';
 import 'package:cloudinary_sdk/src/models/cloudinary_response.dart';
 import 'package:cloudinary_sdk/src/models/cloudinary_upload_resource.dart';
+import 'package:dio/dio.dart';
 
 class Cloudinary {
-  String? _apiKey;
-  String? _apiSecret;
-  String? _cloudName;
-  late CloudinaryClient _client;
+  late final CloudinaryClient _client;
 
-  Cloudinary(String apiKey, String apiSecret, String cloudName) {
-    this._apiKey = apiKey;
-    this._apiSecret = apiSecret;
-    this._cloudName = cloudName;
-    _client = CloudinaryClient(_apiKey, _apiSecret, _cloudName);
+  Cloudinary._({
+    String? apiKey,
+    String? apiSecret,
+    String? cloudName
+  }) : _client = CloudinaryClient(
+      apiKey: apiKey ?? '', apiSecret: apiSecret ?? '', cloudName: cloudName ?? '');
+
+  /// Usu this constructor when you need full control over Cloudinary api
+  /// like when you need to do authorized/signed api requests.
+  factory Cloudinary.full({
+    required String apiKey,
+    required String apiSecret,
+    required String cloudName}) {
+    assert (apiKey.isNotEmpty && apiSecret.isNotEmpty &&
+        cloudName.isNotEmpty, 'None of `apiKey`, `apiSecret`, or `cloudName` '
+        'must be empty.');
+    return Cloudinary._(apiKey: apiKey, apiSecret: apiSecret, cloudName: cloudName);
   }
+
+  /// Usu this constructor when you don't need to make authorized requests
+  /// to Cloudinary api, like when you just need to do unsigned image upload.
+  factory Cloudinary.basic() => Cloudinary._();
+
+  String get apiKey => _client.apiKey;
+  String get apiSecret => _client.apiSecret;
+  String get cloudName => _client.cloudName;
 
   /// Uploads a file of [resourceType] with [fileName] to a [folder]
   /// in your specified [cloudName]
@@ -37,7 +55,8 @@ class Cloudinary {
           fileName: resource.fileName,
           folder: resource.folder,
           resourceType: resource.resourceType,
-          optParams: resource.optParams
+          optParams: resource.optParams,
+          progressCallback: resource.progressCallback,
       );
 
   /// This function uploads multiples files by calling uploadFile repeatedly
@@ -47,10 +66,11 @@ class Cloudinary {
   Future<List<CloudinaryResponse>> uploadResources(
       List<CloudinaryUploadResource> resources) async {
     List<CloudinaryResponse> responses = [];
-    if (resources.isNotEmpty)
+    if (resources.isNotEmpty) {
       responses = await Future.wait(
           resources.map((resource) async => await uploadResource(resource))
       ).catchError((err) => throw (err));
+    }
     return responses;
   }
 
@@ -65,29 +85,33 @@ class Cloudinary {
   ///
   /// Response:
   /// Check all the atributes in the CloudinaryResponse to get the information you need... including secureUrl, publicId, etc.
+  @Deprecated('Use [uploadResource] instead')
   Future<CloudinaryResponse> uploadFile({
     String? filePath,
     List<int>? fileBytes,
     String? fileName,
     String? folder,
     CloudinaryResourceType? resourceType,
-    Map<String, dynamic>? optParams
+    Map<String, dynamic>? optParams,
+    ProgressCallback? progressCallback,
   }) =>
       uploadResource(
-          CloudinaryUploadResource(
-            filePath: filePath,
-            fileBytes: fileBytes,
-            fileName: fileName,
-            folder: folder,
-            resourceType: resourceType,
-            optParams: optParams,
-          )
+        CloudinaryUploadResource(
+          filePath: filePath,
+          fileBytes: fileBytes,
+          fileName: fileName,
+          folder: folder,
+          resourceType: resourceType,
+          optParams: optParams,
+          progressCallback: progressCallback,
+        )
       );
 
   /// This function uploads multiples files by calling uploadFile repeatedly
   ///
   /// [filePaths] the list of paths to the files to upload
   /// [filesBytes] the list of byte array of the files to uploaded
+  @Deprecated('Use [uploadResources] instead')
   Future<List<CloudinaryResponse>> uploadFiles({
     List<String>? filePaths,
     List<List<int>>? filesBytes,
@@ -95,12 +119,13 @@ class Cloudinary {
     CloudinaryResourceType? resourceType,
     Map<String, dynamic>? optParams,
   }) async {
-    if ((filePaths?.isEmpty ?? true) && (filesBytes?.isEmpty ?? true))
-      throw Exception("One of filePaths or filesBytes must not be empty");
+    if ((filePaths?.isEmpty ?? true) && (filesBytes?.isEmpty ?? true)) {
+      throw Exception('One of filePaths or filesBytes must not be empty');
+    }
 
     List<CloudinaryResponse> responses = [];
 
-    if (filesBytes?.isNotEmpty ?? false)
+    if (filesBytes?.isNotEmpty ?? false) {
       responses = await Future.wait(
           filesBytes!.map(
                   (fileBytes) async =>
@@ -112,8 +137,9 @@ class Cloudinary {
               )
           )
       ).catchError((err) => throw (err));
+    }
 
-    if (filePaths?.isNotEmpty ?? false)
+    if (filePaths?.isNotEmpty ?? false) {
       responses = await Future.wait(
           filePaths!.map(
                   (filePath) async =>
@@ -125,6 +151,7 @@ class Cloudinary {
               )
           )
       ).catchError((err) => throw (err));
+    }
 
     return responses;
   }
@@ -142,20 +169,28 @@ class Cloudinary {
   ///
   /// Response:
   /// Check response.isResultOk to know if the file was successfully deleted.
-  Future<CloudinaryResponse> deleteFile(
+  Future<CloudinaryResponse> deleteResource(
       {String? publicId,
       String? url,
       CloudinaryImage? cloudinaryImage,
       CloudinaryResourceType? resourceType,
       bool? invalidate,
       Map<String, dynamic>? optParams}) {
-    if (publicId == null)
-      publicId = (cloudinaryImage ?? CloudinaryImage(url ?? '')).publicId;
+    publicId ??= (cloudinaryImage ?? CloudinaryImage(url ?? '')).publicId;
     return _client.destroy(publicId,
         resourceType: resourceType,
         invalidate: invalidate,
         optParams: optParams);
   }
+
+  @Deprecated('Use [deleteResource] instead')
+  Future<CloudinaryResponse> deleteFile(
+      {String? publicId,
+      String? url,
+      CloudinaryImage? cloudinaryImage,
+      CloudinaryResourceType? resourceType,
+      bool? invalidate,
+      Map<String, dynamic>? optParams}) => deleteResource(publicId: publicId, url: url, cloudinaryImage: cloudinaryImage, resourceType: resourceType, invalidate: invalidate, optParams: optParams);
 
   /// Deletes a list of files of [resourceType] represented by
   /// it's [publicIds] from your specified [cloudName].
@@ -179,7 +214,7 @@ class Cloudinary {
   ///
   /// Response:
   /// Check 'deleted' map inside CloudinaryResponse to know which files were deleted
-  Future<CloudinaryResponse> deleteFiles(
+  Future<CloudinaryResponse> deleteResources(
       {List<String>? publicIds,
       List<String>? urls,
       List<CloudinaryImage>? cloudinaryImages,
@@ -192,11 +227,15 @@ class Cloudinary {
     if (all == null && prefix == null) {
       if (publicIds == null) {
         publicIds = [];
-        if (urls != null)
-          urls.forEach((url) => publicIds!.add(CloudinaryImage(url).publicId));
-        else if (cloudinaryImages != null)
-          cloudinaryImages.forEach(
-              (cloudinaryImage) => publicIds!.add(cloudinaryImage.publicId));
+        if (urls != null) {
+          for (var url in urls) {
+            publicIds.add(CloudinaryImage(url).publicId);
+          }
+        } else if (cloudinaryImages != null) {
+          for (var cloudinaryImage in cloudinaryImages) {
+            publicIds.add(cloudinaryImage.publicId);
+          }
+        }
       }
     }
 
@@ -209,4 +248,25 @@ class Cloudinary {
         invalidate: invalidate,
         optParams: optParams);
   }
+
+  @Deprecated('Use [deleteResources] instead')
+  Future<CloudinaryResponse> deleteFiles(
+      {List<String>? publicIds,
+      List<String>? urls,
+      List<CloudinaryImage>? cloudinaryImages,
+      String? prefix,
+      bool? all,
+      CloudinaryResourceType? resourceType,
+      CloudinaryDeliveryType? deliveryType,
+      bool? invalidate,
+      Map<String, dynamic>? optParams}) => deleteResources(
+      publicIds: publicIds,
+      urls: urls,
+      cloudinaryImages: cloudinaryImages,
+      prefix: prefix,
+      all: all,
+      resourceType: resourceType,
+      deliveryType: deliveryType,
+      invalidate: invalidate,
+    );
 }

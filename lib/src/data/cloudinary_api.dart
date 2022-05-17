@@ -3,18 +3,18 @@ import 'package:crypto/crypto.dart';
 import 'dart:convert';
 
 class CloudinaryApi {
-  static const BASE_URL_PROTOCOL = "https://";
-  static const BASE_URL = "api.cloudinary.com/v1_1/";
-  static const API_BASE_URL = "$BASE_URL_PROTOCOL$BASE_URL";
+  static const baseUrlProtocol = 'https://';
+  static const baseUrl = 'api.cloudinary.com/v1_1/';
+  static const apiBaseUrl = '$baseUrlProtocol$baseUrl';
   late Dio _dio;
   late Dio _deleteDio;
 
   CloudinaryApi({String? apiKey, String? apiSecret}) {
     _dio = Dio(BaseOptions(
-      baseUrl: API_BASE_URL,
+      baseUrl: apiBaseUrl,
     ));
     _deleteDio = Dio(BaseOptions(
-      baseUrl: "$BASE_URL_PROTOCOL$apiKey:$apiSecret@$BASE_URL",
+      baseUrl: '$baseUrlProtocol$apiKey:$apiSecret@$baseUrl',
     ));
   }
 
@@ -59,17 +59,17 @@ class CloudinaryApi {
     String? signature;
     try {
       Map<String, dynamic> signatureParams = {}..addAll(params ?? {});
-      signatureParams["timestamp"] = timeStamp;
+      signatureParams['timestamp'] = timeStamp;
 
       //Removing unwanted params
-      signatureParams.remove("api_key");
-      signatureParams.remove("cloud_name");
-      signatureParams.remove("file");
-      signatureParams.remove("resource_type");
+      signatureParams.remove('api_key');
+      signatureParams.remove('cloud_name');
+      signatureParams.remove('file');
+      signatureParams.remove('resource_type');
 
       //Merging key and value with '='
       List<String> paramsList = [];
-      signatureParams.forEach((key, value) => paramsList.add("$key=$value"));
+      signatureParams.forEach((key, value) => paramsList.add('$key=$value'));
 
       //Sorting params alphabetically
       paramsList.sort();
@@ -77,8 +77,9 @@ class CloudinaryApi {
       //Merging params with '&'
       StringBuffer stringParams = StringBuffer();
       if (paramsList.isNotEmpty) stringParams.write(paramsList[0]);
-      for (int i = 1; i < paramsList.length; ++i)
-        stringParams.write("&${paramsList[i]}");
+      for (int i = 1; i < paramsList.length; ++i) {
+        stringParams.write('&${paramsList[i]}');
+      }
 
       //Adding API Secret to the params
       stringParams.write(secret);
