@@ -15,11 +15,11 @@ class CloudinaryClient extends CloudinaryApi {
   final String cloudName;
 
   CloudinaryClient({
+    String? apiUrl,
     required this.apiKey,
     required this.apiSecret,
     required this.cloudName,
-  }) : super(apiKey: apiKey, apiSecret: apiSecret);
-
+  }) : super(url: apiUrl, apiKey: apiKey, apiSecret: apiSecret);
 
   bool get isBasic => apiKey.isEmpty || apiSecret.isEmpty || cloudName.isEmpty;
 

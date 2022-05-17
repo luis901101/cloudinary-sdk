@@ -3,20 +3,15 @@ import 'package:crypto/crypto.dart';
 import 'dart:convert';
 
 class CloudinaryApi {
-  static const baseUrlProtocol = 'https://';
-  static const baseUrl = 'api.cloudinary.com/v1_1/';
-  static const apiBaseUrl = '$baseUrlProtocol$baseUrl';
-  late Dio _dio;
-  late Dio _deleteDio;
+  static const defaultUrl = 'https://api.cloudinary.com/v1_1/';
+  final String apiUrl;
+  final Dio _dio;
+  final Dio _deleteDio;
 
-  CloudinaryApi({String? apiKey, String? apiSecret}) {
-    _dio = Dio(BaseOptions(
-      baseUrl: apiBaseUrl,
-    ));
-    _deleteDio = Dio(BaseOptions(
-      baseUrl: '$baseUrlProtocol$apiKey:$apiSecret@$baseUrl',
-    ));
-  }
+  CloudinaryApi({String? url, String? apiKey, String? apiSecret})
+      : apiUrl = url ??= defaultUrl,
+        _dio = Dio(BaseOptions(baseUrl: '$url/',)),
+        _deleteDio = Dio(BaseOptions(baseUrl: '$url/'.replaceFirst('https://', 'https://$apiKey:$apiSecret@'),));
 
   /// To do post requests to Cloudinary API
   Future<Response<T>> post<T>(

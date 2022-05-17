@@ -70,7 +70,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
     cloudinary =
-        Cloudinary(cloudinaryApiKey, cloudinaryApiSecret, cloudinaryCloudName);
+        Cloudinary.full(apiKey: cloudinaryApiKey, apiSecret: cloudinaryApiSecret, cloudName: cloudinaryCloudName);
   }
 
   onUploadModeChanged(UploadMode? value) => setState(() => uploadMode = value!);

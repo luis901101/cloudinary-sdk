@@ -7,7 +7,8 @@ import 'package:cloudinary_sdk/cloudinary_sdk.dart';
 /// Take into account not all envs are necessary, it depends on what kind of
 /// authentication you want to use.
 ///
-/// export CLOUDINARY_API_KEY=https://api.cloudflare.com/client/v4
+/// export CLOUDINARY_API_URL=https://api.cloudinary.com/v1_1
+/// export CLOUDINARY_API_KEY=xxxxxxxxxxxxxxxxxxxxxxxxxxx
 /// export CLOUDINARY_API_SECRET=xxxxxxxxxxxxxxxxxxxxxxxxxxx
 /// export CLOUDINARY_CLOUD_NAME=xxxxxxxxxxxxxxxxxxxxxxxxxxx
 /// export CLOUDINARY_FOLDER=xxxxxxxxxxxxxxxxxxxxxxxxxxx
@@ -36,7 +37,7 @@ void addSecureUrl(String? id) {
   if(id != null) cacheUrls.add(id);
 }
 
-Cloudinary cloudinary = Cloudinary.basic();
+Cloudinary cloudinary = Cloudinary.basic(cloudName: 'none');
 
 Future<void> init() async {
   if (apiKey == null) throw Exception("apiKey can't be null");

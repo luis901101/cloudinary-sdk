@@ -10,27 +10,33 @@ class Cloudinary {
   late final CloudinaryClient _client;
 
   Cloudinary._({
+    String? apiUrl,
     String? apiKey,
     String? apiSecret,
-    String? cloudName
-  }) : _client = CloudinaryClient(
-      apiKey: apiKey ?? '', apiSecret: apiSecret ?? '', cloudName: cloudName ?? '');
+    required String cloudName,
+  }) :assert (cloudName.isNotEmpty, '`cloudName` must not be empty.'),
+      _client = CloudinaryClient(apiUrl: apiUrl,
+      apiKey: apiKey ?? '', apiSecret: apiSecret ?? '', cloudName: cloudName);
 
   /// Usu this constructor when you need full control over Cloudinary api
   /// like when you need to do authorized/signed api requests.
   factory Cloudinary.full({
+    String? apiUrl,
     required String apiKey,
     required String apiSecret,
     required String cloudName}) {
     assert (apiKey.isNotEmpty && apiSecret.isNotEmpty &&
         cloudName.isNotEmpty, 'None of `apiKey`, `apiSecret`, or `cloudName` '
         'must be empty.');
-    return Cloudinary._(apiKey: apiKey, apiSecret: apiSecret, cloudName: cloudName);
+    return Cloudinary._(apiUrl: apiUrl, apiKey: apiKey, apiSecret: apiSecret, cloudName: cloudName);
   }
 
   /// Usu this constructor when you don't need to make authorized requests
   /// to Cloudinary api, like when you just need to do unsigned image upload.
-  factory Cloudinary.basic() => Cloudinary._();
+  factory Cloudinary.basic({
+    String? apiUrl,
+    required String cloudName,
+  }) => Cloudinary._(apiUrl: apiUrl, cloudName: cloudName);
 
   String get apiKey => _client.apiKey;
   String get apiSecret => _client.apiSecret;
