@@ -1,5 +1,3 @@
-import 'dart:io';
-import 'dart:typed_data';
 import 'package:path/path.dart' as p;
 
 import 'package:cloudinary_sdk/cloudinary_sdk.dart';
@@ -26,144 +24,201 @@ void main() async {
 
   group('Upload image tests', () {
 
-    test('Simple signed upload image from file with progress update', () async {
-      if (!imageFile.existsSync()) {
-        fail('No image file available to upload');
-      }
-      final response = await cloudinary.uploadResource(
-        CloudinaryUploadResource(
-          filePath: imageFile.path,
-          folder: folder,
-          fileName: 'signed-upload-from-file',
-          progressCallback: (count, total) {
-            print('Uploading image: ${p.basename(imageFile.path)} from file progress: $count/$total');
-          })
-      );
-      expect(response, ResponseMatcher());
-      expect(response.secureUrl, isNotEmpty);
-      addSecureUrl(response.secureUrl);
-    }, timeout: Timeout(Duration(minutes: 2)));
-
-    test('Simple signed upload image from bytes with progress update', () async {
-      if (!imageFile1.existsSync()) {
-        fail('No image bytes available to upload');
-      }
-      final response = await cloudinary.uploadResource(
-        CloudinaryUploadResource(
-          fileBytes: imageFile1.readAsBytesSync(),
-          folder: folder,
-          fileName: 'signed-upload-from-bytes',
-          progressCallback: (count, total) {
-            print('Uploading image: ${p.basename(imageFile1.path)} from bytes progress: $count/$total');
-          })
-      );
-      expect(response, ResponseMatcher());
-      expect(response.secureUrl, isNotEmpty);
-      addSecureUrl(response.secureUrl);
-    }, timeout: Timeout(Duration(minutes: 2)));
-
-    test('Multiple upload image from file with progress update', () async {
-      if (!imageFile.existsSync() ||
-          !imageFile1.existsSync() ||
-          !imageFile2.existsSync()) {
-        fail(
-            'imageFile and imageFile1 and imageFile2 are required for multiple upload test. Check if you set each image file for each env var.');
-      }
-      final files = [imageFile, imageFile1, imageFile2];
-      List<CloudinaryUploadResource> contents = [];
-      for (int i = 0; i < files.length; ++i) {
-        final file = files[i];
-        contents.add(CloudinaryUploadResource(
-          filePath: file.path,
-          folder: folder,
-          fileName: 'signed-multi-upload-from-path-${i + 1}',
-          progressCallback: (count, total) {
-            print(
-              'Multiple upload image from file: ${p.basename(file.path)} progress: $count/$total');
-          })
+    group('Signed upload tests', () {
+      test('Simple signed upload image from file with progress update', () async {
+        if (!imageFile.existsSync()) {
+          fail('No image file available to upload');
+        }
+        final response = await cloudinary.uploadResource(
+            CloudinaryUploadResource(
+                filePath: imageFile.path,
+                folder: folder,
+                fileName: 'signed-upload-from-file',
+                progressCallback: (count, total) {
+                  print('Uploading image: ${p.basename(imageFile.path)} from file progress: $count/$total');
+                })
         );
-      }
-      final responses = await cloudinary.uploadResources(contents,);
-      for (final response in responses) {
         expect(response, ResponseMatcher());
-      expect(response.secureUrl, isNotEmpty);
+        expect(response.secureUrl, isNotEmpty);
         addSecureUrl(response.secureUrl);
-      }
-    }, timeout: Timeout(Duration(minutes: 2)));
+      }, timeout: Timeout(Duration(minutes: 2)));
 
-    test('Multiple upload image from bytes with progress update', () async {
-      if (!imageFile.existsSync() ||
-          !imageFile1.existsSync() ||
-          !imageFile2.existsSync()) {
-        fail(
-            'imageFile and imageFile1 and imageFile2 are required for multiple upload test. Check if you set each image file for each env var.');
-      }
-      final files = [imageFile, imageFile1, imageFile2];
-      List<CloudinaryUploadResource> contents = [];
-      for (int i = 0; i < files.length; ++i) {
-        final file = files[i];
-        contents.add(CloudinaryUploadResource(
-          fileBytes: file.readAsBytesSync(),
-          folder: folder,
-          fileName: 'signed-multi-upload-from-bytes-${i + 1}',
-          progressCallback: (count, total) {
-            print(
-              'Multiple upload image from bytes: ${p.basename(file.path)} progress: $count/$total');
-          })
+      test('Simple signed upload image from bytes with progress update', () async {
+        if (!imageFile1.existsSync()) {
+          fail('No image bytes available to upload');
+        }
+        final response = await cloudinary.uploadResource(
+            CloudinaryUploadResource(
+                fileBytes: imageFile1.readAsBytesSync(),
+                folder: folder,
+                fileName: 'signed-upload-from-bytes',
+                progressCallback: (count, total) {
+                  print('Uploading image: ${p.basename(imageFile1.path)} from bytes progress: $count/$total');
+                })
         );
-      }
-      final responses = await cloudinary.uploadResources(contents,);
-      for (final response in responses) {
         expect(response, ResponseMatcher());
-      expect(response.secureUrl, isNotEmpty);
+        expect(response.secureUrl, isNotEmpty);
         addSecureUrl(response.secureUrl);
-      }
-    }, timeout: Timeout(Duration(minutes: 2)));
+      }, timeout: Timeout(Duration(minutes: 2)));
 
+      test('Multiple signed upload image from file with progress update', () async {
+        if (!imageFile.existsSync() ||
+            !imageFile1.existsSync() ||
+            !imageFile2.existsSync()) {
+          fail(
+              'imageFile and imageFile1 and imageFile2 are required for multiple upload test. Check if you set each image file for each env var.');
+        }
+        final files = [imageFile, imageFile1, imageFile2];
+        List<CloudinaryUploadResource> contents = [];
+        for (int i = 0; i < files.length; ++i) {
+          final file = files[i];
+          contents.add(CloudinaryUploadResource(
+              filePath: file.path,
+              folder: folder,
+              fileName: 'signed-multi-upload-from-path-${i + 1}',
+              progressCallback: (count, total) {
+                print(
+                    'Multiple upload image from file: ${p.basename(file.path)} progress: $count/$total');
+              })
+          );
+        }
+        final responses = await cloudinary.uploadResources(contents,);
+        for (final response in responses) {
+          expect(response, ResponseMatcher());
+          expect(response.secureUrl, isNotEmpty);
+          addSecureUrl(response.secureUrl);
+        }
+      }, timeout: Timeout(Duration(minutes: 2)));
 
-    // group('Image direct upload tests', () {
-    //   late final CloudflareHTTPResponse<DataUploadDraft?> response;
-    //   late final DataUploadDraft? dataUploadDraft;
-    //
-    //   setUpAll(() async {
-    //     response = await cloudinary.imageAPI.createDirectUpload();
-    //     dataUploadDraft = response.body;
-    //   });
-    //
-    //   test('Create authenticated direct image upload URL', () async {
-    //     expect(response, ResponseMatcher());
-    //     expect(response.secureUrl, isNotEmpty);
-    //     expect(dataUploadDraft?.id, isNotEmpty);
-    //     expect(dataUploadDraft?.uploadURL, isNotEmpty);
-    //   });
-    //
-    //   test('Check created image draft status', () async {
-    //     if (dataUploadDraft?.id.isEmpty ?? true) {
-    //       fail('No secureUrl available to check draft status');
-    //     }
-    //     final response = await cloudinary.imageAPI.get(id: dataUploadDraft?.id);
-    //     expect(response, ImageMatcher());
-    //     expect(response.body?.draft, true);
-    //   }, timeout: Timeout(Duration(minutes: 2)));
-    //
-    //   test('Doing image upload to direct upload URL', () async {
-    //     if (dataUploadDraft?.uploadURL.isEmpty ?? true) {
-    //       fail('No uploadURL available to upload to');
-    //     }
-    //     final response = await cloudinary.imageAPI.directUpload(
-    //       dataUploadDraft: dataUploadDraft!,
-    //       contentFromFile: DataTransmit<File>(
-    //         data: imageFile,
-    //         progressCallback: (count, total) {
-    //           print('Image upload to direct upload URL from file progress: $count/$total');
-    //         })
-    //     );
-    //     expect(response, ImageMatcher());
-    //     addId(response.body?.id);
-    //     expect(response.body?.id, dataUploadDraft?.id);
-    //     expect(response.body?.draft, false);
-    //   }, timeout: Timeout(Duration(minutes: 2)));
-    // });
+      test('Multiple signed upload image from bytes with progress update', () async {
+        if (!imageFile.existsSync() ||
+            !imageFile1.existsSync() ||
+            !imageFile2.existsSync()) {
+          fail(
+              'imageFile and imageFile1 and imageFile2 are required for multiple upload test. Check if you set each image file for each env var.');
+        }
+        final files = [imageFile, imageFile1, imageFile2];
+        List<CloudinaryUploadResource> contents = [];
+        for (int i = 0; i < files.length; ++i) {
+          final file = files[i];
+          contents.add(CloudinaryUploadResource(
+              fileBytes: file.readAsBytesSync(),
+              folder: folder,
+              fileName: 'signed-multi-upload-from-bytes-${i + 1}',
+              progressCallback: (count, total) {
+                print(
+                    'Multiple upload image from bytes: ${p.basename(file.path)} progress: $count/$total');
+              })
+          );
+        }
+        final responses = await cloudinary.uploadResources(contents,);
+        for (final response in responses) {
+          expect(response, ResponseMatcher());
+          expect(response.secureUrl, isNotEmpty);
+          addSecureUrl(response.secureUrl);
+        }
+      }, timeout: Timeout(Duration(minutes: 2)));
+    });
+
+    group('Unsigned upload tests', () {
+      test('Simple unsigned upload image from file with progress update', () async {
+        if (!imageFile.existsSync()) {
+          fail('No image file available to upload');
+        }
+        final response = await cloudinary.unsignedUploadResource(
+            CloudinaryUploadResource(
+              uploadPreset: 'unit-test',
+              filePath: imageFile.path,
+              folder: folder,
+              fileName: 'unsigned-upload-from-file',
+              progressCallback: (count, total) {
+                print('Uploading image: ${p.basename(imageFile.path)} from file progress: $count/$total');
+              })
+        );
+        expect(response, ResponseMatcher());
+        expect(response.secureUrl, isNotEmpty);
+        addSecureUrl(response.secureUrl);
+      }, timeout: Timeout(Duration(minutes: 2)));
+
+      test('Simple unsigned upload image from bytes with progress update', () async {
+        if (!imageFile1.existsSync()) {
+          fail('No image bytes available to upload');
+        }
+        final response = await cloudinary.unsignedUploadResource(
+            CloudinaryUploadResource(
+                uploadPreset: 'unit-test',
+                fileBytes: imageFile1.readAsBytesSync(),
+                folder: folder,
+                fileName: 'unsigned-upload-from-bytes',
+                progressCallback: (count, total) {
+                  print('Uploading image: ${p.basename(imageFile1.path)} from bytes progress: $count/$total');
+                })
+        );
+        expect(response, ResponseMatcher());
+        expect(response.secureUrl, isNotEmpty);
+        addSecureUrl(response.secureUrl);
+      }, timeout: Timeout(Duration(minutes: 2)));
+
+      test('Multiple unsigned upload upload image from file with progress update', () async {
+        if (!imageFile.existsSync() ||
+            !imageFile1.existsSync() ||
+            !imageFile2.existsSync()) {
+          fail(
+              'imageFile and imageFile1 and imageFile2 are required for multiple upload test. Check if you set each image file for each env var.');
+        }
+        final files = [imageFile, imageFile1, imageFile2];
+        List<CloudinaryUploadResource> contents = [];
+        for (int i = 0; i < files.length; ++i) {
+          final file = files[i];
+          contents.add(CloudinaryUploadResource(
+              uploadPreset: 'unit-test',
+              filePath: file.path,
+              folder: folder,
+              fileName: 'unsigned-multi-upload-from-path-${i + 1}',
+              progressCallback: (count, total) {
+                print(
+                    'Multiple upload image from file: ${p.basename(file.path)} progress: $count/$total');
+              })
+          );
+        }
+        final responses = await cloudinary.unsignedUploadResources(contents,);
+        for (final response in responses) {
+          expect(response, ResponseMatcher());
+          expect(response.secureUrl, isNotEmpty);
+          addSecureUrl(response.secureUrl);
+        }
+      }, timeout: Timeout(Duration(minutes: 2)));
+
+      test('Multiple unsigned upload image from bytes with progress update', () async {
+        if (!imageFile.existsSync() ||
+            !imageFile1.existsSync() ||
+            !imageFile2.existsSync()) {
+          fail(
+              'imageFile and imageFile1 and imageFile2 are required for multiple upload test. Check if you set each image file for each env var.');
+        }
+        final files = [imageFile, imageFile1, imageFile2];
+        List<CloudinaryUploadResource> contents = [];
+        for (int i = 0; i < files.length; ++i) {
+          final file = files[i];
+          contents.add(CloudinaryUploadResource(
+              uploadPreset: 'unit-test',
+              fileBytes: file.readAsBytesSync(),
+              folder: folder,
+              fileName: 'unsigned-multi-upload-from-bytes-${i + 1}',
+              progressCallback: (count, total) {
+                print(
+                    'Multiple upload image from bytes: ${p.basename(file.path)} progress: $count/$total');
+              })
+          );
+        }
+        final responses = await cloudinary.unsignedUploadResources(contents,);
+        for (final response in responses) {
+          expect(response, ResponseMatcher());
+          expect(response.secureUrl, isNotEmpty);
+          addSecureUrl(response.secureUrl);
+        }
+      }, timeout: Timeout(Duration(minutes: 2)));
+    });
   });
 
   group('Delete resources tests', () {

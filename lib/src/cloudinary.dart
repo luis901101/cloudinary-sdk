@@ -48,7 +48,7 @@ class Cloudinary {
   /// [resource] A [CloudinaryUploadResource] object with all necessary data
   ///
   /// Response:
-  /// Check all the atributes in the CloudinaryResponse to get the information you need... including secureUrl, publicId, etc.
+  /// Check all the attributes in the CloudinaryResponse to get the information you need... including secureUrl, publicId, etc.
 
   /// See also:
   ///
@@ -81,6 +81,51 @@ class Cloudinary {
   }
 
   /// Uploads a file of [resourceType] with [fileName] to a [folder]
+  /// in your specified [cloudName] using a [uploadPreset] with no need to
+  /// specify an [apiKey] nor [apiSecret].
+  ///
+  /// Make sure you set a [uploadPreset] in your resource.
+  ///
+  /// [resource] A [CloudinaryUploadResource] object with all necessary data
+  ///
+  /// Response:
+  /// Check all the attributes in the CloudinaryResponse to get the information you need... including secureUrl, publicId, etc.
+
+  /// See also:
+  ///
+  ///  * [CloudinaryUploadResource], to know which data to set
+  Future<CloudinaryResponse> unsignedUploadResource(CloudinaryUploadResource resource) {
+    if(resource.uploadPreset?.isEmpty ?? true) {
+      throw Exception('Resource\'s uploadPreset must not be empty');
+    }
+    return _client.unsignedUpload(
+      uploadPreset: resource.uploadPreset!,
+      filePath: resource.filePath,
+      fileBytes: resource.fileBytes,
+      fileName: resource.fileName,
+      folder: resource.folder,
+      resourceType: resource.resourceType,
+      optParams: resource.optParams,
+      progressCallback: resource.progressCallback,
+    );
+  }
+
+  /// This function uploads multiples files by calling uploadFile repeatedly
+  ///
+  /// [filePaths] the list of paths to the files to upload
+  /// [filesBytes] the list of byte array of the files to uploaded
+  Future<List<CloudinaryResponse>> unsignedUploadResources(
+      List<CloudinaryUploadResource> resources) async {
+    List<CloudinaryResponse> responses = [];
+    if (resources.isNotEmpty) {
+      responses = await Future.wait(
+          resources.map((resource) async => await unsignedUploadResource(resource))
+      ).catchError((err) => throw (err));
+    }
+    return responses;
+  }
+
+  /// Uploads a file of [resourceType] with [fileName] to a [folder]
   /// in your specified [cloudName]
   ///
   /// [filePath] path to the file to upload
@@ -90,7 +135,7 @@ class Cloudinary {
   /// [optParams] a Map of optional parameters as defined in https://cloudinary.com/documentation/image_upload_api_reference
   ///
   /// Response:
-  /// Check all the atributes in the CloudinaryResponse to get the information you need... including secureUrl, publicId, etc.
+  /// Check all the attributes in the CloudinaryResponse to get the information you need... including secureUrl, publicId, etc.
   @Deprecated('Use [uploadResource] instead')
   Future<CloudinaryResponse> uploadFile({
     String? filePath,

@@ -12,6 +12,7 @@ import 'package:cloudinary_sdk/cloudinary_sdk.dart';
 /// export CLOUDINARY_API_SECRET=xxxxxxxxxxxxxxxxxxxxxxxxxxx
 /// export CLOUDINARY_CLOUD_NAME=xxxxxxxxxxxxxxxxxxxxxxxxxxx
 /// export CLOUDINARY_FOLDER=xxxxxxxxxxxxxxxxxxxxxxxxxxx
+/// export CLOUDINARY_UPLOAD_PRESET=xxxxxxxxxxxxxxxxxxxxxxxxxxx
 ///
 /// export CLOUDINARY_IMAGE_FILE=/Users/user/Desktop/image-test.jpg
 /// export CLOUDINARY_IMAGE_FILE_1=/Users/user/Desktop/image-test-1.jpg
@@ -26,6 +27,7 @@ final String? apiKey = Platform.environment['CLOUDINARY_API_KEY'];
 final String? apiSecret = Platform.environment['CLOUDINARY_API_SECRET'];
 final String? cloudName = Platform.environment['CLOUDINARY_CLOUD_NAME'];
 final String? folder = Platform.environment['CLOUDINARY_FOLDER'] ?? 'test/my-folder';
+final String? uploadPreset = Platform.environment['CLOUDINARY_UPLOAD_PRESET'];
 
 final File imageFile = File(Platform.environment['CLOUDINARY_IMAGE_FILE'] ?? ''),
     imageFile1 = File(Platform.environment['CLOUDINARY_IMAGE_FILE_1'] ?? ''),
@@ -37,7 +39,7 @@ void addSecureUrl(String? id) {
   if(id != null) cacheUrls.add(id);
 }
 
-Cloudinary cloudinary = Cloudinary.basic(cloudName: 'none');
+Cloudinary cloudinary = Cloudinary.basic(cloudName: cloudName ?? '');
 
 Future<void> init() async {
   if (apiKey == null) throw Exception("apiKey can't be null");

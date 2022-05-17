@@ -34,7 +34,7 @@ class CloudinaryClient extends CloudinaryApi {
   /// [optParams] a Map of optional parameters as defined in https://cloudinary.com/documentation/image_upload_api_reference
   ///
   /// Response:
-  /// Check all the atributes in the CloudinaryResponse to get the information you need... including secureUrl, publicId, etc.
+  /// Check all the attributes in the CloudinaryResponse to get the information you need... including secureUrl, publicId, etc.
   ///
   /// Official documentation: https://cloudinary.com/documentation/upload_images
   Future<CloudinaryResponse> upload({
@@ -71,6 +71,75 @@ class CloudinaryClient extends CloudinaryApi {
     params['timestamp'] = timeStamp;
     params['signature'] =
         getSignature(secret: apiSecret, timeStamp: timeStamp, params: params);
+
+    FormData formData = FormData.fromMap(params);
+
+    Response response;
+    int? statusCode;
+    CloudinaryResponse cloudinaryResponse;
+    try {
+      response = await post(
+        cloudName+ '/${resourceType.name}/upload',
+        data: formData,
+        onSendProgress: progressCallback,
+      );
+      statusCode = response.statusCode;
+      cloudinaryResponse = CloudinaryResponse.fromJsonMap(response.data);
+    } catch (error, stacktrace) {
+      print('Exception occurred: $error stackTrace: $stacktrace');
+      if (error is DioError) statusCode = error.response?.statusCode;
+      cloudinaryResponse = CloudinaryResponse.fromError('$error');
+    }
+    cloudinaryResponse.statusCode = statusCode;
+    return cloudinaryResponse;
+  }
+
+  /// Uploads a file of [resourceType] with [fileName] to a [folder] in your
+  /// specified [cloudName] using a [uploadPreset] with no need to specify an
+  /// [apiKey] nor [apiSecret].
+  /// The file to be uploaded can be from a path or a byte array
+  ///
+  /// [filePath] path to the file to upload
+  /// [fileBytes] byte array of the file to uploaded
+  /// [resourceType] defaults to [CloudinaryResourceType.auto]
+  /// [fileName] is not mandatory, if not specified then a random name will be used
+  /// [optParams] a Map of optional parameters as defined in https://cloudinary.com/documentation/image_upload_api_reference
+  ///
+  /// Response:
+  /// Check all the attributes in the CloudinaryResponse to get the information you need... including secureUrl, publicId, etc.
+  ///
+  /// Official documentation: https://cloudinary.com/documentation/upload_images#unsigned_upload
+  Future<CloudinaryResponse> unsignedUpload({
+    required String uploadPreset,
+    String? filePath,
+    List<int>? fileBytes,
+    String? publicId,
+    String? fileName,
+    String? folder,
+    CloudinaryResourceType? resourceType,
+    Map<String, dynamic>? optParams,
+    ProgressCallback? progressCallback,
+  }) async {
+    assert(uploadPreset.isNotEmpty, 'Upload preset must not be empty.');
+
+    if (filePath == null && fileBytes == null) {
+      throw Exception('One of filePath or fileBytes must not be null');
+    }
+
+    resourceType ??= CloudinaryResourceType.auto;
+
+    final params = <String, dynamic>{
+      'upload_preset': uploadPreset,
+      if (publicId != null || fileName != null) 'public_id': publicId ?? fileName,
+      if (folder != null) 'folder': folder,
+      /// Setting the optParams... this would override the public_id and folder if specified by user.
+      if (optParams?.isNotEmpty ?? false) ...optParams!,
+    };
+
+    params['file'] = fileBytes != null
+        ? MultipartFile.fromBytes(fileBytes,
+            filename: fileName ?? DateTime.now().millisecondsSinceEpoch.toString())
+        : await MultipartFile.fromFile(filePath!, filename: fileName);
 
     FormData formData = FormData.fromMap(params);
 
