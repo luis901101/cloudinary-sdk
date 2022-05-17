@@ -95,9 +95,7 @@ class Cloudinary {
   ///
   ///  * [CloudinaryUploadResource], to know which data to set
   Future<CloudinaryResponse> unsignedUploadResource(CloudinaryUploadResource resource) {
-    if(resource.uploadPreset?.isEmpty ?? true) {
-      throw Exception('Resource\'s uploadPreset must not be empty');
-    }
+    assert(resource.uploadPreset?.isNotEmpty ?? false, 'Resource\'s uploadPreset must not be empty');
     return _client.unsignedUpload(
       uploadPreset: resource.uploadPreset!,
       filePath: resource.filePath,

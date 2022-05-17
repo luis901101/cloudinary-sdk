@@ -9,7 +9,7 @@ class CloudinaryApi {
   final Dio _deleteDio;
 
   CloudinaryApi({String? url, String? apiKey, String? apiSecret})
-      : apiUrl = url ??= defaultUrl,
+      : apiUrl = (url?.isEmpty ?? true) ? url = defaultUrl : url!,
         _dio = Dio(BaseOptions(baseUrl: '$url/',)),
         _deleteDio = Dio(BaseOptions(baseUrl: '$url/'.replaceFirst('https://', 'https://$apiKey:$apiSecret@'),));
 

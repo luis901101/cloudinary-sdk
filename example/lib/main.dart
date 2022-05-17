@@ -5,12 +5,40 @@ import 'package:cloudinary_sdk_example/alert_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:cloudinary_sdk_example/image_utils.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:dio/dio.dart';
+
+
+/// Make sure to put environment variables in your
+/// flutter run command or in your Additional run args in your selected
+/// configuration.
+/// Take into account not all envs are necessary
+///
+/// For example:
+///
+/// flutter run
+/// --dart-define=CLOUDINARY_API_URL=https://api.cloudinary.com/v1_1
+/// --dart-define=CLOUDINARY_API_KEY=xxxxxxxxxxxxxxxxxxxxxxxxxxx
+/// --dart-define=CLOUDINARY_API_SECRET=xxxxxxxxxxxxxxxxxxxxxxxxxxx
+/// --dart-define=CLOUDINARY_CLOUD_NAME=xxxxxxxxxxxxxxxxxxxxxxxxxxx
+/// --dart-define=CLOUDINARY_FOLDER=xxxxxxxxxxxxxxxxxxxxxxxxxxx
+/// --dart-define=CLOUDINARY_UPLOAD_PRESET=xxxxxxxxxxxxxxxxxxxxxxxxxxx
+///
+const String apiUrl = String.fromEnvironment('CLOUDINARY_API_URL', defaultValue: 'https://api.cloudinary.com/v1_1');
+const String apiKey = String.fromEnvironment('CLOUDINARY_API_KEY', defaultValue: '');
+const String apiSecret = String.fromEnvironment('CLOUDINARY_API_SECRET', defaultValue: '');
+const String cloudName = String.fromEnvironment('CLOUDINARY_CLOUD_NAME', defaultValue: '');
+const String folder = String.fromEnvironment('CLOUDINARY_FOLDER', defaultValue: 'test/my-folder');
+const String uploadPreset = String.fromEnvironment('CLOUDINARY_UPLOAD_PRESET', defaultValue: '');
+
+final cloudinary = Cloudinary.full(apiUrl: apiUrl, apiKey: apiKey, apiSecret: apiSecret, cloudName: cloudName);
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -19,13 +47,13 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: MyHomePage(title: 'Cloudinary Home Page'),
+      home: const MyHomePage(title: 'Cloudinary Home Page'),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key? key, this.title}) : super(key: key);
+  const MyHomePage({Key? key, this.title}) : super(key: key);
 
   final String? title;
 
@@ -34,69 +62,74 @@ class MyHomePage extends StatefulWidget {
 }
 
 enum UploadMode {
-  SINGLE,
-  MULTIPLE,
+  single,
+  multiple,
 }
 
 enum FileSource {
-  PATH,
-  BYTES,
+  path,
+  bytes,
 }
 
 enum DeleteMode {
-  BATCH,
-  ITERATIVE,
+  batch,
+  iterative,
+}
+
+class DataTransmitNotifier {
+  final String path;
+  late final ProgressCallback? progressCallback;
+  final notifier = ValueNotifier<double>(0);
+
+  DataTransmitNotifier({required this.path, ProgressCallback? progressCallback}) {
+    this.progressCallback = progressCallback ?? (count, total) {
+      notifier.value = count.toDouble() / total.toDouble();
+    };
+  }
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  //Change this values with your own
-  final String cloudinaryCustomFolder = "test/myfolder";
-  final String cloudinaryApiKey = "111111111";
-  final String cloudinaryApiSecret = "aaaaa-bbbbb-ccccccccc";
-  final String cloudinaryCloudName = "my-cloud-name";
-  static const int loadPhoto = 1;
-  static const int uploadPhotos = 2;
-  static const int deleteUploadedPhotos = 3;
-  List<String> pathPhotos = [];
-  List<String> urlPhotos = [];
+  static const int loadImage = 1;
+  static const int doSignedUpload = 2;
+  static const int doUnsignedUpload = 3;
+  static const int deleteUploadedData = 4;
+  List<DataTransmitNotifier> dataImages = [];
+  List<CloudinaryResponse> cloudinaryResponses = [];
   bool loading = false;
-  late Cloudinary cloudinary;
   String? errorMessage;
-  UploadMode uploadMode = UploadMode.SINGLE;
-  FileSource fileSource = FileSource.PATH;
-  DeleteMode deleteMode = DeleteMode.BATCH;
+  UploadMode uploadMode = UploadMode.single;
+  FileSource fileSource = FileSource.path;
+  DeleteMode deleteMode = DeleteMode.batch;
 
   @override
   void initState() {
     super.initState();
-    cloudinary =
-        Cloudinary.full(apiKey: cloudinaryApiKey, apiSecret: cloudinaryApiSecret, cloudName: cloudinaryCloudName);
   }
 
-  onUploadModeChanged(UploadMode? value) => setState(() => uploadMode = value!);
+  void onUploadModeChanged(UploadMode? value) => setState(() => uploadMode = value!);
 
-  onUploadSourceChanged(FileSource? value) =>
+  void onUploadSourceChanged(FileSource? value) =>
       setState(() => fileSource = value!);
 
-  onDeleteModeChanged(DeleteMode? value) => setState(() => deleteMode = value!);
+  void onDeleteModeChanged(DeleteMode? value) => setState(() => deleteMode = value!);
 
   Widget get uploadModeView => Column(
         children: [
-          Text("Upload mode"),
+          const Text("Upload mode"),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               Expanded(
                 child: RadioListTile<UploadMode>(
-                    title: Text("Single"),
-                    value: UploadMode.SINGLE,
+                    title: const Text("Single"),
+                    value: UploadMode.single,
                     groupValue: uploadMode,
                     onChanged: onUploadModeChanged),
               ),
               Expanded(
                 child: RadioListTile<UploadMode>(
-                    title: Text("Multiple"),
-                    value: UploadMode.MULTIPLE,
+                    title: const Text("Multiple"),
+                    value: UploadMode.multiple,
                     groupValue: uploadMode,
                     onChanged: onUploadModeChanged),
               ),
@@ -107,21 +140,21 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Widget get uploadSourceView => Column(
         children: [
-          Text("File source"),
+          const Text("File source"),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               Expanded(
                 child: RadioListTile<FileSource>(
-                    title: Text("Path"),
-                    value: FileSource.PATH,
+                    title: const Text("Path"),
+                    value: FileSource.path,
                     groupValue: fileSource,
                     onChanged: onUploadSourceChanged),
               ),
               Expanded(
                 child: RadioListTile<FileSource>(
-                    title: Text("Bytes"),
-                    value: FileSource.BYTES,
+                    title: const Text("Bytes"),
+                    value: FileSource.bytes,
                     groupValue: fileSource,
                     onChanged: onUploadSourceChanged),
               ),
@@ -132,21 +165,21 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Widget get deleteModeView => Column(
         children: [
-          Text("Delete mode"),
+          const Text("Delete mode"),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               Expanded(
                 child: RadioListTile<DeleteMode>(
-                    title: Text("Batch"),
-                    value: DeleteMode.BATCH,
+                    title: const Text("Batch"),
+                    value: DeleteMode.batch,
                     groupValue: deleteMode,
                     onChanged: onDeleteModeChanged),
               ),
               Expanded(
                 child: RadioListTile<DeleteMode>(
-                    title: Text("Iterative"),
-                    value: DeleteMode.ITERATIVE,
+                    title: const Text("Iterative"),
+                    value: DeleteMode.iterative,
                     groupValue: deleteMode,
                     onChanged: onDeleteModeChanged),
               ),
@@ -154,6 +187,85 @@ class _MyHomePageState extends State<MyHomePage> {
           )
         ],
       );
+
+  Widget imageFromPathView(DataTransmitNotifier data) {
+    return SizedBox(
+      width: 100,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Image.file(
+            File(data.path),
+            width: 100,
+            height: 100,
+          ),
+          ValueListenableBuilder<double>(
+            key: ValueKey(data.path),
+            valueListenable: data.notifier,
+            builder: (context, value, child) {
+              if (value == 0 && !loading) return const SizedBox();
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  LinearProgressIndicator(
+                    value: value,
+                  ),
+                  Text('${(value * 100).toInt()} %'),
+                ],
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget imageFromUrlView(CloudinaryResponse resource) {
+    final image = resource.cloudinaryImage;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Image.network(
+          image!.transform().width(256).thumb().generate()!,
+          width: 100,
+          height: 100,
+        ),
+        SizedBox(
+          width: 100,
+          child: Text(resource.originalFilename ?? resource.publicId ?? resource.secureUrl ?? 'Unknown',
+            textAlign: TextAlign.center,
+            overflow: TextOverflow.ellipsis,
+            maxLines: 1,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget imageGalleryView({
+    bool fromPath = true,
+  }) {
+    List imagesSource = fromPath ? dataImages : cloudinaryResponses;
+
+    final imageViews = List.generate(imagesSource.length, (index) {
+      final source = imagesSource[index];
+      return fromPath ? imageFromPathView(source) : imageFromUrlView(source);
+    });
+
+    if (loading && !fromPath) {
+      imageViews.add(const Center(
+        child: CircularProgressIndicator(),
+      ));
+    }
+    return Wrap(
+      alignment: WrapAlignment.center,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      runAlignment: WrapAlignment.center,
+      spacing: 8,
+      runSpacing: 8,
+      children: imageViews,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -167,32 +279,19 @@ class _MyHomePageState extends State<MyHomePage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                SizedBox(height: 16),
-                Text(
+                const SizedBox(height: 16),
+                const Text(
                   'Photos from file',
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 16,
                 ),
-                Wrap(
-                  alignment: WrapAlignment.center,
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  runAlignment: WrapAlignment.center,
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: List.generate(pathPhotos.length, (index) {
-                    return Image.file(
-                      File(pathPhotos[index]),
-                      width: 100,
-                      height: 100,
-                    );
-                  }),
-                ),
+                imageGalleryView(fromPath: true),
                 ElevatedButton(
-                  onPressed: loading || pathPhotos.isEmpty
+                  onPressed: loading || dataImages.isEmpty
                       ? null
                       : () {
-                          pathPhotos = [];
+                          dataImages = [];
                           setState(() {});
                         },
                   style: ButtonStyle(
@@ -203,48 +302,22 @@ class _MyHomePageState extends State<MyHomePage> {
                           : Colors.deepPurple;
                     }),
                   ),
-                  child: Text(
+                  child: const Text(
                     'Clear list',
                     textAlign: TextAlign.center,
                   ),
                 ),
-                Divider(
+                const Divider(
                   height: 48,
                 ),
-                Text(
+                const Text(
                   'Photos from cloudinary',
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 16,
                 ),
-                Wrap(
-                  alignment: WrapAlignment.center,
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  runAlignment: WrapAlignment.center,
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: List.generate(urlPhotos.length, (index) {
-                    final cloudinaryImage = CloudinaryImage(urlPhotos[index]);
-                    String transformedUrl = cloudinaryImage
-                        .transform()
-                        .width(256)
-                        .thumb()
-                        .generate()!;
-                    return Image.network(
-                      transformedUrl,
-                      width: 100,
-                      height: 100,
-                    );
-                  })
-                    ..add(
-                      Visibility(
-                          visible: loading,
-                          child: Center(
-                            child: CircularProgressIndicator(),
-                          )),
-                    ),
-                ),
-                SizedBox(
+                imageGalleryView(fromPath: false),
+                const SizedBox(
                   height: 32,
                 ),
                 Visibility(
@@ -258,16 +331,16 @@ class _MyHomePageState extends State<MyHomePage> {
                           style: TextStyle(
                               fontSize: 18, color: Colors.red.shade900),
                         ),
-                        SizedBox(
+                        const SizedBox(
                           height: 128,
                         ),
                       ],
                     )),
                 ElevatedButton(
-                  onPressed: loading || urlPhotos.isEmpty
+                  onPressed: loading || cloudinaryResponses.isEmpty
                       ? null
                       : () {
-                          urlPhotos = [];
+                          cloudinaryResponses = [];
                           setState(() {});
                         },
                   style: ButtonStyle(
@@ -278,92 +351,142 @@ class _MyHomePageState extends State<MyHomePage> {
                           : Colors.purple;
                     }),
                   ),
-                  child: Text(
+                  child: const Text(
                     'Clear list',
                     textAlign: TextAlign.center,
                   ),
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 32,
                 ),
                 uploadModeView,
-                SizedBox(
+                const SizedBox(
                   height: 16,
                 ),
                 uploadSourceView,
-                SizedBox(
+                const SizedBox(
                   height: 16,
                 ),
                 deleteModeView,
-                SizedBox(
+                const SizedBox(
                   height: 32,
                 ),
                 Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: loading ||
-                                  (pathPhotos.isEmpty && urlPhotos.isEmpty)
-                              ? null
-                              : () {
-                                  pathPhotos = [];
-                                  urlPhotos = [];
-                                  setState(() {});
-                                },
-                          style: ButtonStyle(
-                            backgroundColor:
-                                MaterialStateProperty.resolveWith<Color?>(
-                                    (Set<MaterialState> states) {
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: loading ||
+                          (dataImages.isEmpty &&
+                              cloudinaryResponses.isEmpty)
+                          ? null
+                          : () {
+                        dataImages = [];
+                        cloudinaryResponses = [];
+                        setState(() {});
+                      },
+                      style: ButtonStyle(
+                        backgroundColor:
+                        MaterialStateProperty.resolveWith<Color?>(
+                                (Set<MaterialState> states) {
+                              return states.contains(MaterialState.disabled)
+                                  ? null
+                                  : Colors.blue;
+                            }),
+                      ),
+                      child: const Text(
+                        'Clear all',
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: loading || dataImages.isEmpty
+                          ? null
+                          : () => onClick(doSignedUpload),
+                      style: ButtonStyle(
+                          padding: MaterialStateProperty.all(const EdgeInsets.all(8))
+                      ),
+                      child: Column(
+                        children: const [
+                          Text(
+                            'Signed upload',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                          ),
+                          SizedBox(height: 4),
+                          Text(
+                            'Signed uploads are recommended only for server side, because it requires an api key and api secret to be able to upload images to Cloudinary. For uploading images from client side like mobile or web app consider "Unsigned upload"',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(fontSize: 12, fontWeight: FontWeight.normal),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: loading || dataImages.isEmpty
+                          ? null
+                          : () => onClick(doUnsignedUpload),
+                      style: ButtonStyle(
+                        padding: MaterialStateProperty.all(const EdgeInsets.all(8)),
+                        backgroundColor:
+                        MaterialStateProperty.resolveWith<Color?>(
+                                (Set<MaterialState> states) {
                               return states.contains(MaterialState.disabled)
                                   ? null
                                   : Colors.deepOrange;
                             }),
-                          ),
-                          child: Text(
-                            'Clear all',
+                      ),
+                      child: Column(
+                        children: const [
+                          Text(
+                            'Unsigned upload',
                             textAlign: TextAlign.center,
+                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                           ),
-                        ),
-                      ),
-                      SizedBox(
-                        width: 16,
-                      ),
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: loading || pathPhotos.isEmpty
-                              ? null
-                              : () => onClick(uploadPhotos),
-                          child: Text(
-                            'Upload',
+                          SizedBox(height: 4),
+                          Text(
+                            'Unsigned uploads are recommended from client side like mobile or web app. This upload doesn\'t require an api key or api secret to upload to Cloudinary.',
                             textAlign: TextAlign.center,
+                            style: TextStyle(fontSize: 12, fontWeight: FontWeight.normal),
                           ),
-                        ),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
                 ),
                 Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Row(
                     children: [
                       Expanded(
                         child: ElevatedButton(
-                          onPressed: loading || pathPhotos.isEmpty
+                          onPressed: loading || cloudinaryResponses.isEmpty
                               ? null
-                              : () => onClick(deleteUploadedPhotos),
+                              : () => onClick(deleteUploadedData),
                           style: ButtonStyle(
                             backgroundColor:
-                                MaterialStateProperty.resolveWith<Color?>(
+                            MaterialStateProperty.resolveWith<Color?>(
                                     (Set<MaterialState> states) {
-                              return states.contains(MaterialState.disabled)
-                                  ? null
-                                  : Colors.red.shade600;
-                            }),
+                                  return states.contains(MaterialState.disabled)
+                                      ? null
+                                      : Colors.red.shade600;
+                                }),
                           ),
-                          child: Text(
-                            'Delete uploaded photos',
+                          child: const Text(
+                            'Delete uploaded images',
                             textAlign: TextAlign.center,
                           ),
                         ),
@@ -371,22 +494,27 @@ class _MyHomePageState extends State<MyHomePage> {
                     ],
                   ),
                 ),
+                SizedBox(height: MediaQuery.of(context).padding.bottom,),
               ],
             ),
           ),
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => onClick(loadPhoto),
+        onPressed: () => onClick(loadImage),
         tooltip: 'Choose photo',
-        child: Icon(Icons.photo),
+        child: const Icon(Icons.photo),
       ),
     );
   }
 
-  onNewPhoto(String? filePath) {
-    if (filePath?.isNotEmpty ?? false) {
-      pathPhotos.add(filePath!);
+  void onNewImages(List<String> filePaths) {
+    if (filePaths.isNotEmpty) {
+      for (final path in filePaths) {
+        if (path.isNotEmpty) {
+          dataImages.add(DataTransmitNotifier(path: path));
+        }
+      }
       setState(() {});
     }
   }
@@ -395,32 +523,31 @@ class _MyHomePageState extends State<MyHomePage> {
     return await File(path).readAsBytes();
   }
 
-  Future<void> doSingleUpload() async {
+  Future<void> doSingleUpload({bool signed = true}) async {
     try {
-      String? filePath;
+      final data = dataImages.first;
       List<int>? fileBytes;
 
-      switch (fileSource) {
-        case FileSource.PATH:
-          filePath = pathPhotos[0];
-          break;
-        case FileSource.BYTES:
-          fileBytes = await getFileBytes(pathPhotos[0]);
-          break;
-        default:
+      if (fileSource == FileSource.bytes) {
+        fileBytes = await getFileBytes(data.path);
       }
 
-      CloudinaryResponse response = await cloudinary.uploadResource(
-          CloudinaryUploadResource(
-              filePath: filePath,
-              fileBytes: fileBytes,
-              resourceType: CloudinaryResourceType.image,
-              folder: cloudinaryCustomFolder,
-              fileName: 'asd@asd.com'));
+      final resource = CloudinaryUploadResource(
+        filePath: data.path,
+        fileBytes: fileBytes,
+        resourceType: CloudinaryResourceType.image,
+        folder: folder,
+        fileName: 'single-${DateTime.now().millisecondsSinceEpoch}',
+        progressCallback: data.progressCallback,
+        uploadPreset: uploadPreset,
+      );
+      CloudinaryResponse response = signed ?
+        await cloudinary.uploadResource(resource) :
+        await cloudinary.unsignedUploadResource(resource);
 
-      if (response.isSuccessful && response.secureUrl!.isNotEmpty)
-        urlPhotos.add(response.secureUrl!);
-      else {
+      if (response.isSuccessful && response.secureUrl!.isNotEmpty) {
+        cloudinaryResponses.add(response);
+      } else {
         errorMessage = response.error;
       }
     } catch (e) {
@@ -429,48 +556,53 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  Future<void> doMultipleUpload() async {
+  Future<void> doMultipleUpload({bool signed = true}) async {
     try {
       List<CloudinaryUploadResource> resources = await Future.wait(
-          pathPhotos.map((path) async => CloudinaryUploadResource(
-                filePath: fileSource == FileSource.PATH ? path : null,
-                fileBytes: fileSource == FileSource.BYTES
-                    ? await getFileBytes(path)
-                    : null,
-                resourceType: CloudinaryResourceType.image,
-                folder: cloudinaryCustomFolder,
-              )));
+          dataImages.map((data) async => CloudinaryUploadResource(
+            filePath: fileSource == FileSource.path ? data.path : null,
+            fileBytes: fileSource == FileSource.bytes
+                ? await getFileBytes(data.path)
+                : null,
+            resourceType: CloudinaryResourceType.image,
+            folder: folder,
+            progressCallback: data.progressCallback,
+            uploadPreset: uploadPreset,
+          )));
 
-      List<CloudinaryResponse> responses =
-          await (cloudinary.uploadResources(resources));
-      responses.forEach((response) {
-        if (response.isSuccessful)
-          urlPhotos.add(response.secureUrl!);
-        else {
+      List<CloudinaryResponse> responses = signed ?
+        await cloudinary.uploadResources(resources) :
+        await cloudinary.unsignedUploadResources(resources);
+      for (var response in responses) {
+        if (response.isSuccessful) {
+          cloudinaryResponses.add(response);
+        } else {
           errorMessage = response.error;
         }
-      });
+      }
     } catch (e) {
       errorMessage = e.toString();
       print(e);
     }
   }
 
-  Future<void> upload() async {
+  Future<void> upload({bool signed = true}) async {
     showLoading();
     switch (uploadMode) {
-      case UploadMode.MULTIPLE: return doMultipleUpload();
-      case UploadMode.SINGLE: return doSingleUpload();
+      case UploadMode.multiple: return doMultipleUpload(signed: signed);
+      case UploadMode.single: return doSingleUpload(signed: signed);
       default:
     }
   }
 
   Future<void> doBatchDelete() async {
-    CloudinaryResponse response = await cloudinary.deleteFiles(
-        urls: urlPhotos, resourceType: CloudinaryResourceType.image);
+    CloudinaryResponse response = await cloudinary.deleteResources(
+      urls: cloudinaryResponses.map((e) => e.secureUrl!).toList(),
+      resourceType: CloudinaryResourceType.image
+    );
 
     if (response.isSuccessful) {
-      urlPhotos = [];
+      cloudinaryResponses = [];
       // Check for deleted status...
       // Map<String, dynamic> deleted = response.deleted;
     } else {
@@ -479,15 +611,15 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> doIterativeDelete() async {
-    for (int i = 0; i < urlPhotos.length; i++) {
-      String url = urlPhotos[i];
-      final response = await cloudinary.deleteFile(
+    for (int i = 0; i < cloudinaryResponses.length; i++) {
+      String url = cloudinaryResponses[i].secureUrl!;
+      final response = await cloudinary.deleteResource(
         url: url,
         resourceType: CloudinaryResourceType.image,
         invalidate: false,
       );
       if (response.isSuccessful) {
-        urlPhotos.remove(url);
+        cloudinaryResponses.removeWhere((element) => element.secureUrl == url);
         --i;
       }
     }
@@ -496,9 +628,9 @@ class _MyHomePageState extends State<MyHomePage> {
   Future<void> delete() async {
     showLoading();
     switch (deleteMode) {
-      case DeleteMode.BATCH:
+      case DeleteMode.batch:
         return doBatchDelete();
-      case DeleteMode.ITERATIVE:
+      case DeleteMode.iterative:
         return doIterativeDelete();
       default:
     }
@@ -508,23 +640,26 @@ class _MyHomePageState extends State<MyHomePage> {
     errorMessage = null;
     try {
       switch (id) {
-        case loadPhoto:
+        case loadImage:
           AlertUtils.showImagePickerModal(
             context: context,
             onImageFromCamera: () async {
-              onNewPhoto(await handleImagePickerResponse(
+              onNewImages(await handleImagePickerResponse(
                   ImageUtils.takePhoto(cameraDevice: CameraDevice.rear)));
             },
             onImageFromGallery: () async {
-              onNewPhoto(await handleImagePickerResponse(
+              onNewImages(await handleImagePickerResponse(
                   ImageUtils.pickImageFromGallery()));
             },
           );
           break;
-        case uploadPhotos:
+        case doSignedUpload:
           await upload();
           break;
-        case deleteUploadedPhotos:
+        case doUnsignedUpload:
+          await upload(signed: false);
+          break;
+        case deleteUploadedData:
           await delete();
           break;
       }
@@ -537,23 +672,23 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  showLoading() => setState(() => loading = true);
+  void showLoading() => setState(() => loading = true);
 
-  hideLoading() => setState(() => loading = false);
+  void hideLoading() => setState(() => loading = false);
 
-  Future<String?> handleImagePickerResponse(Future getImageCall) async {
+  Future<List<String>> handleImagePickerResponse(Future getImageCall) async {
     Map<String, dynamic> resource =
-        await (getImageCall as FutureOr<Map<String, dynamic>>);
-    if (resource.isEmpty) return null;
+    await (getImageCall as FutureOr<Map<String, dynamic>>);
+    if (resource.isEmpty) return [];
     switch (resource['status']) {
       case 'SUCCESS':
         Navigator.pop(context);
-        return resource['data'].path;
+        return resource['data'];
       default:
         ImageUtils.showPermissionExplanation(
             context: context, message: resource['message']);
         break;
     }
-    return null;
+    return [];
   }
 }

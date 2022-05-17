@@ -1,3 +1,5 @@
+import 'package:cloudinary_sdk/cloudinary_sdk.dart';
+
 class CloudinaryResponse {
   int? statusCode;
   String? publicId;
@@ -24,6 +26,15 @@ class CloudinaryResponse {
       ((statusCode ??= 200) >= 200 && statusCode! < 300) && isResultOk;
 
   bool get isResultOk => (error?.isEmpty ?? true) && (result ??= 'ok') == 'ok';
+
+  CloudinaryImage? get cloudinaryImage {
+    try {
+      return CloudinaryImage(secureUrl!);
+    } catch (e) {
+      print(e);
+    }
+    return null;
+  }
 
   CloudinaryResponse.fromJsonMap(Map<String, dynamic> map)
       : publicId = map['public_id'],
