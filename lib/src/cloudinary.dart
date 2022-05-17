@@ -21,8 +21,9 @@ class Cloudinary {
             apiSecret: apiSecret ?? '',
             cloudName: cloudName);
 
-  /// Usu this constructor when you need full control over Cloudinary api
+  /// Use this constructor when you need full control over Cloudinary api
   /// like when you need to do authorized/signed api requests.
+  /// Recommended for server side apps.
   factory Cloudinary.full(
       {String? apiUrl,
       required String apiKey,
@@ -39,8 +40,9 @@ class Cloudinary {
         cloudName: cloudName);
   }
 
-  /// Usu this constructor when you don't need to make authorized requests
+  /// Use this constructor when you don't need to make authorized requests
   /// to Cloudinary api, like when you just need to do unsigned image upload.
+  /// Recommended for client side apps.
   factory Cloudinary.basic({
     String? apiUrl,
     required String cloudName,
