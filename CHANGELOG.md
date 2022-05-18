@@ -9,6 +9,10 @@ Types of changes
 - `Fixed` for any bug fixes.
 - `Security` in case of vulnerabilities.
 
+## 4.0.1+9
+### Changed
+- CloudinaryResponse updated with named argument constructor
+
 ## 4.0.0+8
 ### Added
 - Unsigned uploads.

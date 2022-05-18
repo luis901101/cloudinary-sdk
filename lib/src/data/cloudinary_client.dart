@@ -4,6 +4,7 @@ import 'package:cloudinary_sdk/src/models/cloudinary_response.dart';
 import 'package:dio/dio.dart';
 import 'cloudinary_api.dart';
 
+/// Cloudinary client abstraction
 class CloudinaryClient extends CloudinaryApi {
   static const _signedRequestAssertMessage = 'This endpoint requires an '
       'authorized request, check the Cloudinary constructor you are using and '

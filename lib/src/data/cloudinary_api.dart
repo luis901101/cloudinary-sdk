@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:crypto/crypto.dart';
 import 'dart:convert';
 
+/// Cloudinary API abstraction
 class CloudinaryApi {
   static const defaultUrl = 'https://api.cloudinary.com/v1_1/';
   final String apiUrl;

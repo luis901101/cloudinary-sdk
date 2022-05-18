@@ -1,5 +1,7 @@
 import 'package:cloudinary_sdk/cloudinary_sdk.dart';
 
+/// The object image representation of a Cloudinary image which allows you to
+/// apply transformations to the image url.
 class CloudinaryImage {
   static const String _baseUrl =
       'https://res.cloudinary.com/:cloud/image/upload/';

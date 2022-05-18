@@ -22,6 +22,29 @@ class CloudinaryResponse {
   Map<String, dynamic>? deleted;
   bool? partial;
 
+  CloudinaryResponse({
+    this.statusCode,
+    this.publicId,
+    this.version,
+    this.width,
+    this.height,
+    this.format,
+    this.createdAt,
+    this.resourceType,
+    this.tags,
+    this.bytes,
+    this.type,
+    this.etag,
+    this.url,
+    this.secureUrl,
+    this.signature,
+    this.originalFilename,
+    this.result,
+    this.error,
+    this.deleted,
+    this.partial,
+  });
+
   bool get isSuccessful =>
       ((statusCode ??= 200) >= 200 && statusCode! < 300) && isResultOk;
 

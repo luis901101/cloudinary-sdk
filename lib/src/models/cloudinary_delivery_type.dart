@@ -1,3 +1,4 @@
+/// Cloudinary delivery type enum
 enum CloudinaryDeliveryType {
   upload,
   private,

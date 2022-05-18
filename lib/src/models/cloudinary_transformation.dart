@@ -1,5 +1,7 @@
 import 'package:cloudinary_sdk/src/models/cloudinary_image.dart';
 
+/// Cloudinary transformation wrapper to allow you to apply transformation in
+/// an easy way.
 class CloudinaryTransformation {
   final String _path;
   final String _publicId;

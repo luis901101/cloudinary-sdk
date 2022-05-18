@@ -6,6 +6,7 @@ import 'package:cloudinary_sdk/src/models/cloudinary_response.dart';
 import 'package:cloudinary_sdk/src/models/cloudinary_upload_resource.dart';
 import 'package:dio/dio.dart';
 
+/// Cloudinary SDK object to access the cloudinary API.
 class Cloudinary {
   late final CloudinaryClient _client;
 

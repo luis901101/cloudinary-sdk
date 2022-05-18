@@ -416,14 +416,14 @@ class _MyHomePageState extends State<MyHomePage> {
                           : () => onClick(doSignedUpload),
                       style: ButtonStyle(
                         padding:
-                        MaterialStateProperty.all(const EdgeInsets.all(8)),
+                            MaterialStateProperty.all(const EdgeInsets.all(8)),
                         backgroundColor:
-                        MaterialStateProperty.resolveWith<Color?>(
+                            MaterialStateProperty.resolveWith<Color?>(
                                 (Set<MaterialState> states) {
-                              return states.contains(MaterialState.disabled)
-                                  ? null
-                                  : Colors.orange;
-                            }),
+                          return states.contains(MaterialState.disabled)
+                              ? null
+                              : Colors.orange;
+                        }),
                       ),
                       child: Column(
                         children: const [
