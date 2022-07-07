@@ -70,6 +70,7 @@ class Cloudinary {
       _client.upload(
         filePath: resource.filePath,
         fileBytes: resource.fileBytes,
+        publicId: resource.publicId,
         fileName: resource.fileName,
         folder: resource.folder,
         resourceType: resource.resourceType,
@@ -114,6 +115,7 @@ class Cloudinary {
       uploadPreset: resource.uploadPreset!,
       filePath: resource.filePath,
       fileBytes: resource.fileBytes,
+      publicId: resource.publicId,
       fileName: resource.fileName,
       folder: resource.folder,
       resourceType: resource.resourceType,
@@ -152,6 +154,7 @@ class Cloudinary {
   Future<CloudinaryResponse> uploadFile({
     String? filePath,
     List<int>? fileBytes,
+    String? publicId,
     String? fileName,
     String? folder,
     CloudinaryResourceType? resourceType,
@@ -161,6 +164,7 @@ class Cloudinary {
       uploadResource(CloudinaryUploadResource(
         filePath: filePath,
         fileBytes: fileBytes,
+        publicId: publicId,
         fileName: fileName,
         folder: folder,
         resourceType: resourceType,

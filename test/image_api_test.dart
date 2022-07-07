@@ -36,7 +36,7 @@ void main() async {
             await cloudinary.uploadResource(CloudinaryUploadResource(
                 filePath: imageFile.path,
                 folder: folder,
-                fileName: 'signed-upload-from-file',
+                publicId: 'signed-upload-from-file',
                 progressCallback: (count, total) {
                   print(
                       'Uploading image: ${p.basename(imageFile.path)} from file progress: $count/$total');

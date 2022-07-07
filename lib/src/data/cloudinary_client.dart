@@ -40,6 +40,7 @@ class CloudinaryClient extends CloudinaryApi {
   Future<CloudinaryResponse> upload({
     String? filePath,
     List<int>? fileBytes,
+    String? publicId,
     String? fileName,
     String? folder,
     CloudinaryResourceType? resourceType,
@@ -57,7 +58,9 @@ class CloudinaryClient extends CloudinaryApi {
 
     Map<String, dynamic> params = {};
 
-    if (fileName != null) params['public_id'] = fileName;
+    if (publicId != null || fileName != null) {
+      params['public_id'] = publicId ?? fileName;
+    }
     if (folder != null) params['folder'] = folder;
 
     /// Setting the optParams... this would override the public_id and folder if specified by user.

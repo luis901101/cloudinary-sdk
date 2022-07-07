@@ -9,6 +9,10 @@ Types of changes
 - `Fixed` for any bug fixes.
 - `Security` in case of vulnerabilities.
 
+## 4.0.2+10
+### Changed
+- Upload functions updated to take into account `publicId` as well as `fileName`
+
 ## 4.0.1+9
 ### Changed
 - CloudinaryResponse updated with named argument constructor
