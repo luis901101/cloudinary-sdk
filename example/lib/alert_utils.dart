@@ -19,12 +19,12 @@ class AlertUtils {
           return SafeArea(
             child: IntrinsicHeight(
               child: Column(
-                children: <Widget>[
+                children: [
                   InkWell(
                     child: Container(
                       padding: const EdgeInsets.all(16),
                       child: Row(
-                        children: <Widget>[
+                        children: [
                           Icon(Icons.camera, color: Colors.grey.shade800),
                           const VerticalDivider(),
                           const Expanded(
@@ -43,7 +43,7 @@ class AlertUtils {
                     child: Container(
                       padding: const EdgeInsets.all(16),
                       child: Row(
-                        children: <Widget>[
+                        children: [
                           Icon(
                             Icons.image,
                             color: Colors.grey.shade800,
@@ -65,8 +65,8 @@ class AlertUtils {
                     child: InkWell(
                       child: Container(
                         padding: const EdgeInsets.all(16),
-                        child: Row(
-                          children: const <Widget>[
+                        child: const Row(
+                          children: [
                             Icon(
                               Icons.delete,
                               color: Colors.red,

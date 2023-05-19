@@ -425,8 +425,8 @@ class _MyHomePageState extends State<MyHomePage> {
                               : Colors.orange;
                         }),
                       ),
-                      child: Column(
-                        children: const [
+                      child: const Column(
+                        children: [
                           Text(
                             'Signed upload',
                             textAlign: TextAlign.center,
@@ -465,8 +465,8 @@ class _MyHomePageState extends State<MyHomePage> {
                               : Colors.deepOrange;
                         }),
                       ),
-                      child: Column(
-                        children: const [
+                      child: const Column(
+                        children: [
                           Text(
                             'Unsigned upload',
                             textAlign: TextAlign.center,

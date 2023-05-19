@@ -17,7 +17,7 @@ class CloudinaryImage {
     final resource = this.url.split('/upload/');
     // assert(resource.length == 2, 'Invalid cloudinary url');
     if (resource.length != 2) throw InvalidCloudinaryUrlException();
-    pathStart = resource[0] + '/upload/';
+    pathStart = '${resource[0]}/upload/';
     final String pathEnd = resource[1];
     String tempPublicId = Uri.decodeFull(pathEnd);
     int lastDotIndex = tempPublicId.lastIndexOf('.');

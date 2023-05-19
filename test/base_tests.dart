@@ -26,7 +26,7 @@ import 'package:cloudinary_sdk/cloudinary_sdk.dart';
 final String? apiKey = Platform.environment['CLOUDINARY_API_KEY'];
 final String? apiSecret = Platform.environment['CLOUDINARY_API_SECRET'];
 final String? cloudName = Platform.environment['CLOUDINARY_CLOUD_NAME'];
-final String? folder =
+final String folder =
     Platform.environment['CLOUDINARY_FOLDER'] ?? 'test/my-folder';
 final String? uploadPreset = Platform.environment['CLOUDINARY_UPLOAD_PRESET'];
 

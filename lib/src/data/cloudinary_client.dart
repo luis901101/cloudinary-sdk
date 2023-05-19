@@ -82,7 +82,7 @@ class CloudinaryClient extends CloudinaryApi {
     CloudinaryResponse cloudinaryResponse;
     try {
       response = await post(
-        cloudName + '/${resourceType.name}/upload',
+        '$cloudName/${resourceType.name}/upload',
         data: formData,
         onSendProgress: progressCallback,
       );
@@ -154,7 +154,7 @@ class CloudinaryClient extends CloudinaryApi {
     CloudinaryResponse cloudinaryResponse;
     try {
       response = await post(
-        cloudName + '/${resourceType.name}/upload',
+        '$cloudName/${resourceType.name}/upload',
         data: formData,
         onSendProgress: progressCallback,
       );
@@ -204,8 +204,8 @@ class CloudinaryClient extends CloudinaryApi {
     CloudinaryResponse cloudinaryResponse;
     int? statusCode;
     try {
-      response = await post(cloudName + '/${resourceType.name}/destroy',
-          data: formData);
+      response =
+          await post('$cloudName/${resourceType.name}/destroy', data: formData);
       statusCode = response.statusCode;
       cloudinaryResponse = CloudinaryResponse.fromJsonMap(response.data);
     } catch (error, stacktrace) {
@@ -271,7 +271,7 @@ class CloudinaryClient extends CloudinaryApi {
     int? statusCode;
     try {
       response = await delete(
-        cloudName + '/resources/${resourceType.name}/${deliveryType.name}',
+        '$cloudName/resources/${resourceType.name}/${deliveryType.name}',
         data: formData,
       );
       statusCode = response.statusCode;
