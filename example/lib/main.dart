@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'package:cloudinary_sdk/cloudinary_sdk.dart';
 import 'package:cloudinary_sdk_example/alert_utils.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:cloudinary_sdk_example/image_utils.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:dio/dio.dart';
@@ -126,24 +126,24 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget get uploadModeView => Column(
         children: [
           const Text("Upload mode"),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              Expanded(
-                child: RadioListTile<UploadMode>(
-                    title: const Text("Single"),
-                    value: UploadMode.single,
-                    groupValue: uploadMode,
-                    onChanged: onUploadModeChanged),
-              ),
-              Expanded(
-                child: RadioListTile<UploadMode>(
-                    title: const Text("Multiple"),
-                    value: UploadMode.multiple,
-                    groupValue: uploadMode,
-                    onChanged: onUploadModeChanged),
-              ),
-            ],
+          RadioGroup<UploadMode>(
+            groupValue: uploadMode,
+            onChanged: onUploadModeChanged,
+            child: const Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Expanded(
+                  child: RadioListTile<UploadMode>(
+                      title: Text("Single"),
+                      value: UploadMode.single),
+                ),
+                Expanded(
+                  child: RadioListTile<UploadMode>(
+                      title: Text("Multiple"),
+                      value: UploadMode.multiple),
+                ),
+              ],
+            ),
           )
         ],
       );
@@ -151,24 +151,24 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget get uploadSourceView => Column(
         children: [
           const Text("File source"),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              Expanded(
-                child: RadioListTile<FileSource>(
-                    title: const Text("Path"),
-                    value: FileSource.path,
-                    groupValue: fileSource,
-                    onChanged: onUploadSourceChanged),
-              ),
-              Expanded(
-                child: RadioListTile<FileSource>(
-                    title: const Text("Bytes"),
-                    value: FileSource.bytes,
-                    groupValue: fileSource,
-                    onChanged: onUploadSourceChanged),
-              ),
-            ],
+          RadioGroup<FileSource>(
+            groupValue: fileSource,
+            onChanged: onUploadSourceChanged,
+            child: const Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Expanded(
+                  child: RadioListTile<FileSource>(
+                      title: Text("Path"),
+                      value: FileSource.path),
+                ),
+                Expanded(
+                  child: RadioListTile<FileSource>(
+                      title: Text("Bytes"),
+                      value: FileSource.bytes),
+                ),
+              ],
+            ),
           )
         ],
       );
@@ -176,24 +176,24 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget get deleteModeView => Column(
         children: [
           const Text("Delete mode"),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              Expanded(
-                child: RadioListTile<DeleteMode>(
-                    title: const Text("Batch"),
-                    value: DeleteMode.batch,
-                    groupValue: deleteMode,
-                    onChanged: onDeleteModeChanged),
-              ),
-              Expanded(
-                child: RadioListTile<DeleteMode>(
-                    title: const Text("Iterative"),
-                    value: DeleteMode.iterative,
-                    groupValue: deleteMode,
-                    onChanged: onDeleteModeChanged),
-              ),
-            ],
+          RadioGroup<DeleteMode>(
+            groupValue: deleteMode,
+            onChanged: onDeleteModeChanged,
+            child: const Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Expanded(
+                  child: RadioListTile<DeleteMode>(
+                      title: Text("Batch"),
+                      value: DeleteMode.batch),
+                ),
+                Expanded(
+                  child: RadioListTile<DeleteMode>(
+                      title: Text("Iterative"),
+                      value: DeleteMode.iterative),
+                ),
+              ],
+            ),
           )
         ],
       );
@@ -309,9 +309,9 @@ class _MyHomePageState extends State<MyHomePage> {
                           setState(() {});
                         },
                   style: ButtonStyle(
-                    backgroundColor: MaterialStateProperty.resolveWith<Color?>(
-                        (Set<MaterialState> states) {
-                      return states.contains(MaterialState.disabled)
+                    backgroundColor: WidgetStateProperty.resolveWith<Color?>(
+                        (Set<WidgetState> states) {
+                      return states.contains(WidgetState.disabled)
                           ? null
                           : Colors.deepPurple;
                     }),
@@ -358,9 +358,9 @@ class _MyHomePageState extends State<MyHomePage> {
                           setState(() {});
                         },
                   style: ButtonStyle(
-                    backgroundColor: MaterialStateProperty.resolveWith<Color?>(
-                        (Set<MaterialState> states) {
-                      return states.contains(MaterialState.disabled)
+                    backgroundColor: WidgetStateProperty.resolveWith<Color?>(
+                        (Set<WidgetState> states) {
+                      return states.contains(WidgetState.disabled)
                           ? null
                           : Colors.purple;
                     }),
@@ -416,11 +416,11 @@ class _MyHomePageState extends State<MyHomePage> {
                           : () => onClick(doSignedUpload),
                       style: ButtonStyle(
                         padding:
-                            MaterialStateProperty.all(const EdgeInsets.all(8)),
+                            WidgetStateProperty.all(const EdgeInsets.all(8)),
                         backgroundColor:
-                            MaterialStateProperty.resolveWith<Color?>(
-                                (Set<MaterialState> states) {
-                          return states.contains(MaterialState.disabled)
+                            WidgetStateProperty.resolveWith<Color?>(
+                                (Set<WidgetState> states) {
+                          return states.contains(WidgetState.disabled)
                               ? null
                               : Colors.orange;
                         }),
@@ -456,11 +456,11 @@ class _MyHomePageState extends State<MyHomePage> {
                           : () => onClick(doUnsignedUpload),
                       style: ButtonStyle(
                         padding:
-                            MaterialStateProperty.all(const EdgeInsets.all(8)),
+                            WidgetStateProperty.all(const EdgeInsets.all(8)),
                         backgroundColor:
-                            MaterialStateProperty.resolveWith<Color?>(
-                                (Set<MaterialState> states) {
-                          return states.contains(MaterialState.disabled)
+                            WidgetStateProperty.resolveWith<Color?>(
+                                (Set<WidgetState> states) {
+                          return states.contains(WidgetState.disabled)
                               ? null
                               : Colors.deepOrange;
                         }),
@@ -496,9 +496,9 @@ class _MyHomePageState extends State<MyHomePage> {
                               : () => onClick(deleteUploadedData),
                           style: ButtonStyle(
                             backgroundColor:
-                                MaterialStateProperty.resolveWith<Color?>(
-                                    (Set<MaterialState> states) {
-                              return states.contains(MaterialState.disabled)
+                                WidgetStateProperty.resolveWith<Color?>(
+                                    (Set<WidgetState> states) {
+                              return states.contains(WidgetState.disabled)
                                   ? null
                                   : Colors.red.shade600;
                             }),
@@ -613,7 +613,6 @@ class _MyHomePageState extends State<MyHomePage> {
         return doMultipleUpload(signed: signed);
       case UploadMode.single:
         return doSingleUpload(signed: signed);
-      default:
     }
   }
 
@@ -653,7 +652,6 @@ class _MyHomePageState extends State<MyHomePage> {
         return doBatchDelete();
       case DeleteMode.iterative:
         return doIterativeDelete();
-      default:
     }
   }
 

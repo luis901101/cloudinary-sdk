@@ -9,6 +9,11 @@ Types of changes
 - `Fixed` for any bug fixes.
 - `Security` in case of vulnerabilities.
 
+## 5.0.1
+### Changed
+- Update dependency constraint to `dio: ^5.2.0`.
+- Example project migrated to Flutter 3.50 and `material_ui`.
+
 ## 5.0.0+1
 ### Changed
 - Update dependency constraints to `sdk: '>=3.0.0 <4.0.0' flutter: '>=3.3.0'`

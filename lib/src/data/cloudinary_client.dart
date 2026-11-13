@@ -90,7 +90,7 @@ class CloudinaryClient extends CloudinaryApi {
       cloudinaryResponse = CloudinaryResponse.fromJsonMap(response.data);
     } catch (error, stacktrace) {
       print('Exception occurred: $error stackTrace: $stacktrace');
-      if (error is DioError) statusCode = error.response?.statusCode;
+      if (error is DioException) statusCode = error.response?.statusCode;
       cloudinaryResponse = CloudinaryResponse.fromError('$error');
     }
     cloudinaryResponse.statusCode = statusCode;
@@ -162,7 +162,7 @@ class CloudinaryClient extends CloudinaryApi {
       cloudinaryResponse = CloudinaryResponse.fromJsonMap(response.data);
     } catch (error, stacktrace) {
       print('Exception occurred: $error stackTrace: $stacktrace');
-      if (error is DioError) statusCode = error.response?.statusCode;
+      if (error is DioException) statusCode = error.response?.statusCode;
       cloudinaryResponse = CloudinaryResponse.fromError('$error');
     }
     cloudinaryResponse.statusCode = statusCode;
@@ -210,7 +210,7 @@ class CloudinaryClient extends CloudinaryApi {
       cloudinaryResponse = CloudinaryResponse.fromJsonMap(response.data);
     } catch (error, stacktrace) {
       print('Exception occured: $error stackTrace: $stacktrace');
-      if (error is DioError) statusCode = error.response?.statusCode;
+      if (error is DioException) statusCode = error.response?.statusCode;
       cloudinaryResponse = CloudinaryResponse.fromError('$error');
     }
     cloudinaryResponse.statusCode = statusCode;
@@ -278,7 +278,7 @@ class CloudinaryClient extends CloudinaryApi {
       cloudinaryResponse = CloudinaryResponse.fromJsonMap(response.data);
     } catch (error, stacktrace) {
       print('Exception occured: $error stackTrace: $stacktrace');
-      if (error is DioError) statusCode = error.response?.statusCode;
+      if (error is DioException) statusCode = error.response?.statusCode;
       cloudinaryResponse = CloudinaryResponse.fromError('$error');
     }
     cloudinaryResponse.statusCode = statusCode;
